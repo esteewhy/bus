@@ -1,0 +1,136 @@
+<html>
+<head>
+<script
+  src="https://code.jquery.com/jquery-3.6.4.min.js"
+  integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
+  crossorigin="anonymous"></script>
+
+<style>
+
+label { content: ''; background-image: url(tiles.png); min-width: 7px; min-height: 42px; }
+
+:root {
+    --door-offset: -78px;
+    --window-offset: -47px;
+    --front-offset: -103px;
+    --extra-offset: -110px;
+}
+
+.front1 { background-position: var(--front-offset) 0; width: 7px; }
+.front2 { background-position: var(--front-offset) -42px; width: 7px; }
+
+.back1 { background-position: 0 0; width: 7px; }
+.back2 { background-position: -8px 0; width: 20px; }
+
+.door1 { background-position: var(--door-offset) 0; width: 16px; }
+.door2 { background-position: var(--door-offset) -42px; width: 16px; }
+.door3 { background-position: var(--door-offset) -84px; width: 16px; }
+.door4 { background-position: var(--door-offset) -126px; width: 16px; }
+.door5 { background-position: var(--door-offset) -168px; width: 22px; }
+.door6 { background-position: var(--door-offset) -210px; width: 22px; }
+.door7 { background-position: var(--door-offset) -252px; width: 24px; }
+
+.window1 { background-position: var(--window-offset) 0; width: 25px; }
+.window2 { background-position: var(--window-offset) -42px; width: 25px; }
+.window3 { background-position: var(--window-offset) -84px; width: 25px; }
+.window4 { background-position: var(--window-offset) -126px; width: 14px; }
+.window5 { background-position: var(--window-offset) -168px; width: 14px; }
+.window6 { background-position: var(--window-offset) -210px; width: 14px; }
+.window7 { background-position: var(--window-offset) -252px; width: 7px; }
+.window8 { background-position: var(--window-offset) -294px; width: 30px; }
+.window9 { background-position: var(--window-offset) -336px; width: 30px; }
+
+.spot { background-position: var(--extra-offset) -84px; width: 22px; }
+.blank { background-position: var(--extra-offset) -126px; width: 22px; }
+
+input { position: absolute; left: -999px; }
+input + label { display: none; }
+input:checked + label { display: inline-block; }
+
+.picker { display: inline-block; }
+.picker:hover > span > input + label { display: block; }
+.picker:hover {
+    position: absolute;
+    white-space: nowrap;
+    z-index: 998;
+}
+.picker:hover .picker:hover { z-index: 999; }
+.picker:hover .picker:hover > input + label { display: inline-block; }
+.picker:hover > span > input + label:hover { background-color: white; cursor: pointer; }
+.picker:hover input:checked + label { border: 1px solid red; background-color: white; }
+
+.layer1.picker br { display: none; }
+.layer1.picker:hover br { display: initial; }
+
+.layer1.picker:hover {
+    border: 1px solid lightgray;
+    border-radius: 7px;
+    padding: 1px;
+    background-color: silver;
+    opacity: 0.8;
+}
+
+.layer1.picker:hover > span > input + label { display: inline-block; margin: 1px; }
+</style>
+<script>
+$(function() {
+    function option$(id, groupName, checked) {
+        return $('<span/>').html([
+            $('<input/>', {'type': 'radio', value: id, id: groupName + id, checked: checked, name: groupName}),
+            $('<label/>', {'for': groupName + id, 'class': id}).html('&nbsp;')
+        ]);
+    }
+    
+    function layer1$(groupName) {
+        return $('<div/>', {'class': groupName + ' layer1 slot picker'}).append(
+                option$('spot', groupName, 'checked'),
+                $.map(Array.from(new Array(2).keys()), function(n) {
+                    return option$('back' + (n + 1), groupName);
+                }),
+                $.map(Array.from(new Array(2).keys()), function(n) {
+                    return option$('front' + (n + 1), groupName);
+                }),
+                $('<br/>'),
+                $.map(Array.from(new Array(7).keys()), function(n) {
+                    return option$('door' + (n + 1), groupName);
+                }),
+                $('<br/>'),
+                $.map(Array.from(new Array(9).keys()), function(n) {
+                    return option$('window' + (n + 1), groupName);
+                })
+            );
+    }
+    
+    function playground$(id) {
+        return $('<div id="' + id + '" />').append($.map(Array.from(new Array(20).keys()), function(n) {
+            return layer1$(id + 'slot' + (n + 1));
+        }));
+    }
+    
+    $('#slots').replaceWith(
+        $.map(Array.from(new Array(7).keys()), function(n) {
+            return playground$('playground' + (n + 1));
+        })
+    );
+    
+    function inflateBus(board, blueprint) {
+        var a = blueprint.split(' ');
+        $(board + ' .slot').map(function(n, i) {
+            $(':input', i).val([a[n]]);
+        });
+    }
+    
+    inflateBus('#playground1', 'back1 door5 window3 window3 door5 window3 window3 door5 front1');
+    inflateBus('#playground2', 'back1 window5 door1 window8 window8 window8 window8 door1 front1');
+    inflateBus('#playground3', 'back1 window5 window5 window9 window9 window9 window9 door1 front1');
+    inflateBus('#playground4', 'back1 window7 door1 window9 window9 window3 door1 front1');
+    inflateBus('#playground5', 'back1 window5 door1 window9 window9 window9 window9 door1 front1');
+    inflateBus('#playground6', 'back1 door6 window3 window3 door6 back2 window3 window3 door6 window3 window3 door6 front1');
+    inflateBus('#playground7', 'back1 window7 door7 window3 window3 door7 window1 window3 window7 door7 front1');
+});
+</script>
+</head>
+<body>
+    <span id='slots'></span>
+</body>
+</html>
