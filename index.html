@@ -16,29 +16,29 @@ label { content: ''; background-image: url(tiles.png); min-width: 7px; min-heigh
     --extra-offset: -110px;
 }
 
-.front1 { background-position: var(--front-offset) 0; width: 7px; }
-.front2 { background-position: var(--front-offset) -42px; width: 7px; }
+.h0 { background-position: var(--front-offset) 0; width: 7px; }
+.h1 { background-position: var(--front-offset) -42px; width: 7px; }
 
-.back1 { background-position: 0 0; width: 7px; }
-.back2 { background-position: -8px 0; width: 20px; }
+.t0 { background-position: 0 0; width: 7px; }
+.t1 { background-position: -8px 0; width: 20px; }
 
-.door1 { background-position: var(--door-offset) 0; width: 16px; }
-.door2 { background-position: var(--door-offset) -42px; width: 16px; }
-.door3 { background-position: var(--door-offset) -84px; width: 16px; }
-.door4 { background-position: var(--door-offset) -126px; width: 16px; }
-.door5 { background-position: var(--door-offset) -168px; width: 22px; }
-.door6 { background-position: var(--door-offset) -210px; width: 22px; }
-.door7 { background-position: var(--door-offset) -252px; width: 24px; }
+.d0 { background-position: var(--door-offset) 0; width: 16px; }
+.d1 { background-position: var(--door-offset) -42px; width: 16px; }
+.d2 { background-position: var(--door-offset) -84px; width: 16px; }
+.d3 { background-position: var(--door-offset) -126px; width: 16px; }
+.d4 { background-position: var(--door-offset) -168px; width: 22px; }
+.d5 { background-position: var(--door-offset) -210px; width: 22px; }
+.d6 { background-position: var(--door-offset) -252px; width: 24px; }
 
-.window1 { background-position: var(--window-offset) 0; width: 25px; }
-.window2 { background-position: var(--window-offset) -42px; width: 25px; }
-.window3 { background-position: var(--window-offset) -84px; width: 25px; }
-.window4 { background-position: var(--window-offset) -126px; width: 14px; }
-.window5 { background-position: var(--window-offset) -168px; width: 14px; }
-.window6 { background-position: var(--window-offset) -210px; width: 14px; }
-.window7 { background-position: var(--window-offset) -252px; width: 7px; }
-.window8 { background-position: var(--window-offset) -294px; width: 30px; }
-.window9 { background-position: var(--window-offset) -336px; width: 30px; }
+.w0 { background-position: var(--window-offset) 0; width: 25px; }
+.w1 { background-position: var(--window-offset) -42px; width: 25px; }
+.w2 { background-position: var(--window-offset) -84px; width: 25px; }
+.w3 { background-position: var(--window-offset) -126px; width: 14px; }
+.w4 { background-position: var(--window-offset) -168px; width: 14px; }
+.w5 { background-position: var(--window-offset) -210px; width: 14px; }
+.w6 { background-position: var(--window-offset) -252px; width: 7px; }
+.w7 { background-position: var(--window-offset) -294px; width: 30px; }
+.w8 { background-position: var(--window-offset) -336px; width: 30px; }
 
 .spot { background-position: var(--extra-offset) -84px; width: 22px; }
 .blank { background-position: var(--extra-offset) -126px; width: 22px; }
@@ -63,7 +63,7 @@ input:checked + label { display: inline-block; }
 .layer1.picker:hover br { display: initial; }
 
 .layer1.picker:hover {
-    border: 1px solid lightgray;
+    border: 1px solid gray;
     border-radius: 7px;
     padding: 1px;
     background-color: silver;
@@ -77,7 +77,7 @@ $(function() {
     function option$(id, groupName, checked) {
         return $('<span/>').html([
             $('<input/>', {'type': 'radio', value: id, id: groupName + id, checked: checked, name: groupName}),
-            $('<label/>', {'for': groupName + id, 'class': id}).html('&nbsp;')
+            $('<label/>', {'for': groupName + id, 'class': id, title: id}).html('&nbsp;')
         ]);
     }
     
@@ -85,18 +85,18 @@ $(function() {
         return $('<div/>', {'class': groupName + ' layer1 slot picker'}).append(
                 option$('spot', groupName, 'checked'),
                 $.map(Array.from(new Array(2).keys()), function(n) {
-                    return option$('back' + (n + 1), groupName);
+                    return option$('t' + n, groupName);
                 }),
                 $.map(Array.from(new Array(2).keys()), function(n) {
-                    return option$('front' + (n + 1), groupName);
+                    return option$('h' + n, groupName);
                 }),
                 $('<br/>'),
                 $.map(Array.from(new Array(7).keys()), function(n) {
-                    return option$('door' + (n + 1), groupName);
+                    return option$('d' + n, groupName);
                 }),
                 $('<br/>'),
                 $.map(Array.from(new Array(9).keys()), function(n) {
-                    return option$('window' + (n + 1), groupName);
+                    return option$('w' + n, groupName);
                 })
             );
     }
@@ -109,7 +109,7 @@ $(function() {
     
     $('#slots').replaceWith(
         $.map(Array.from(new Array(7).keys()), function(n) {
-            return playground$('playground' + (n + 1));
+            return playground$('playground' + n);
         })
     );
     
@@ -120,13 +120,13 @@ $(function() {
         });
     }
     
-    inflateBus('#playground1', 'back1 door5 window3 window3 door5 window3 window3 door5 front1');
-    inflateBus('#playground2', 'back1 window5 door1 window8 window8 window8 window8 door1 front1');
-    inflateBus('#playground3', 'back1 window5 window5 window9 window9 window9 window9 door1 front1');
-    inflateBus('#playground4', 'back1 window7 door1 window9 window9 window3 door1 front1');
-    inflateBus('#playground5', 'back1 window5 door1 window9 window9 window9 window9 door1 front1');
-    inflateBus('#playground6', 'back1 door6 window3 window3 door6 back2 window3 window3 door6 window3 window3 door6 front1');
-    inflateBus('#playground7', 'back1 window7 door7 window3 window3 door7 window1 window3 window7 door7 front1');
+    inflateBus('#playground0', 't0 d4 w2 w2 d4 w2 w2 d4 h0');
+    inflateBus('#playground1', 't0 w4 d0 w7 w7 w7 w7 d0 h0');
+    inflateBus('#playground2', 't0 w4 w4 w8 w8 w8 w8 d0 h0');
+    inflateBus('#playground3', 't0 w6 d0 w8 w8 w2 d0 h0');
+    inflateBus('#playground4', 't0 w4 d0 w8 w8 w8 w8 d0 h0');
+    inflateBus('#playground5', 't0 d5 w2 w2 d5 t1 w2 w2 d5 w2 w2 d5 h0');
+    inflateBus('#playground6', 't0 w6 d6 w2 w2 d6 w0 w2 w6 d6 h0');
 });
 </script>
 </head>
