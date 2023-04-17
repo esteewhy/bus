@@ -4,106 +4,175 @@
   src="https://code.jquery.com/jquery-3.6.4.min.js"
   integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8="
   crossorigin="anonymous"></script>
-
 <style>
-
-label { content: ''; background-image: url(tiles.png); min-width: 7px; min-height: 42px; }
-
-:root {
-    --door-offset: -78px;
-    --window-offset: -47px;
-    --front-offset: -103px;
-    --extra-offset: -110px;
-}
-
-.h0 { background-position: var(--front-offset) 0; width: 7px; }
-.h1 { background-position: var(--front-offset) -42px; width: 7px; }
-
-.t0 { background-position: 0 0; width: 7px; }
-.t1 { background-position: -8px 0; width: 20px; }
-
-.d0 { background-position: var(--door-offset) 0; width: 16px; }
-.d1 { background-position: var(--door-offset) -42px; width: 16px; }
-.d2 { background-position: var(--door-offset) -84px; width: 16px; }
-.d3 { background-position: var(--door-offset) -126px; width: 16px; }
-.d4 { background-position: var(--door-offset) -168px; width: 22px; }
-.d5 { background-position: var(--door-offset) -210px; width: 22px; }
-.d6 { background-position: var(--door-offset) -252px; width: 24px; }
-
-.w0 { background-position: var(--window-offset) 0; width: 25px; }
-.w1 { background-position: var(--window-offset) -42px; width: 25px; }
-.w2 { background-position: var(--window-offset) -84px; width: 25px; }
-.w3 { background-position: var(--window-offset) -126px; width: 14px; }
-.w4 { background-position: var(--window-offset) -168px; width: 14px; }
-.w5 { background-position: var(--window-offset) -210px; width: 14px; }
-.w6 { background-position: var(--window-offset) -252px; width: 7px; }
-.w7 { background-position: var(--window-offset) -294px; width: 30px; }
-.w8 { background-position: var(--window-offset) -336px; width: 30px; }
-
-.spot { background-position: var(--extra-offset) -84px; width: 22px; }
-.blank { background-position: var(--extra-offset) -126px; width: 22px; }
+label { content: ''; }
+label.shadow,.label { background-image: url(tiles.png); min-width: 7px; min-height: 47px; }
 
 input { position: absolute; left: -999px; }
-input + label { display: none; }
-input:checked + label { display: inline-block; }
+input + .label { display: none; }
+input:checked + .label { display: inline-block; }
 
-.picker { display: inline-block; }
-.picker:hover > span > input + label { display: block; }
+.picker {
+    display: inline-flex;
+    flex-direction: column;
+    min-height: 47px;
+    justify-content: space-between;
+    align-items: center;
+}
 .picker:hover {
+    display: inline-block;
     position: absolute;
     white-space: nowrap;
     z-index: 998;
-}
-.picker:hover .picker:hover { z-index: 999; }
-.picker:hover .picker:hover > input + label { display: inline-block; }
-.picker:hover > span > input + label:hover { background-color: white; cursor: pointer; }
-.picker:hover input:checked + label { border: 1px solid red; background-color: white; }
-
-.layer1.picker br { display: none; }
-.layer1.picker:hover br { display: initial; }
-
-.layer1.picker:hover {
     border: 1px solid gray;
     border-radius: 7px;
     padding: 1px;
     background-color: silver;
     opacity: 0.8;
+    transition: background-color 0.5s;
 }
 
-.layer1.picker:hover > span > input + label { display: inline-block; margin: 1px; }
+.picker:hover > input + .label label {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    min-height: 47px;
+}
+.picker:hover > input + .w.label label { min-height: 20px; }
+.picker:hover > input + .a.label label,
+.picker:hover > input + .l.label label { min-height: 16px; }
+.picker:hover > input + .label:hover { background-color: white; }
+.picker:hover > input + .label label:hover {
+    background-color: transparent;
+    cursor: pointer;
+}
+.picker:hover input:checked + .label {
+    border: 1px solid red;
+    background-color: white;
+    border-radius: 2px;
+}
+
+.picker br { display: none; }
+.picker:hover br { display: initial; }
+
+.picker + .shadow {
+    display: none;
+    background-color: #faa;
+}
+.picker:hover + .shadow { display: inline-block; }
+.picker:hover > input + .label { display: inline-block; margin: 1px; } 
+
+:root {
+    --wheel-offset: -29px;
+    --window-offset: -47px;
+    --door-offset: -78px;
+    --front-offset: -103px;
+    --extra-offset: -110px;
+    --v-offset: -47px;
+}
+
+.layer1.picker:hover:has(input:checked + .h0) + .shadow, .h0 { background-position: var(--front-offset) 0; width: 7px; }
+.layer1.picker:hover:has(input:checked + .h1) + .shadow, .h1 { background-position: var(--front-offset) var(--v-offset); width: 7px; }
+
+.layer1.picker:hover:has(input:checked + .t0) + .shadow, .t0 { background-position: 0 0; width: 7px; }
+.layer1.picker:hover:has(input:checked + .t1) + .shadow, .t1 { background-position: -8px 0; width: 20px; }
+
+.layer1.picker:hover:has(input:checked + .d0) + .shadow, .d0 { background-position: var(--door-offset) 0; width: 16px; }
+.layer1.picker:hover:has(input:checked + .d1) + .shadow, .d1 { background-position: var(--door-offset) var(--v-offset); width: 16px; }
+.layer1.picker:hover:has(input:checked + .d2) + .shadow, .d2 { background-position: var(--door-offset) calc(var(--v-offset) * 2); width: 16px; }
+.layer1.picker:hover:has(input:checked + .d3) + .shadow, .d3 { background-position: var(--door-offset) calc(var(--v-offset) * 3); width: 16px; }
+.layer1.picker:hover:has(input:checked + .d4) + .shadow, .d4 { background-position: var(--door-offset) calc(var(--v-offset) * 4); width: 22px; }
+.layer1.picker:hover:has(input:checked + .d5) + .shadow, .d5 { background-position: var(--door-offset) calc(var(--v-offset) * 5); width: 22px; }
+.layer1.picker:hover:has(input:checked + .d6) + .shadow, .d6 { background-position: var(--door-offset) calc(var(--v-offset) * 6); width: 24px; }
+.layer1.picker:hover:has(input:checked + .d7) + .shadow, .d7 { background-position: var(--door-offset) calc(var(--v-offset) * 7); width: 22px; }
+.layer1.picker:hover:has(input:checked + .d8) + .shadow, .d8 { background-position: var(--door-offset) calc(var(--v-offset) * 8); width: 16px; }
+
+.w { min-height: 21px; }
+.layer1.picker:hover:has(input:checked + .w0) + .shadow, .w0 { background-position: var(--window-offset) 0; width: 25px;  }
+.layer1.picker:hover:has(input:checked + .w1) + .shadow, .w1 { background-position: var(--window-offset) var(--v-offset); width: 25px; }
+.layer1.picker:hover:has(input:checked + .w2) + .shadow, .w2 { background-position: var(--window-offset) calc(var(--v-offset) * 2); width: 25px; }
+.layer1.picker:hover:has(input:checked + .w3) + .shadow, .w3 { background-position: var(--window-offset) calc(var(--v-offset) * 3); width: 14px; }
+.layer1.picker:hover:has(input:checked + .w4) + .shadow, .w4 { background-position: var(--window-offset) calc(var(--v-offset) * 4); width: 14px; }
+.layer1.picker:hover:has(input:checked + .w5) + .shadow, .w5 { background-position: var(--window-offset) calc(var(--v-offset) * 5); width: 14px; }
+.layer1.picker:hover:has(input:checked + .w6) + .shadow, .w6 { background-position: var(--window-offset) calc(var(--v-offset) * 6); width: 7px; }
+.layer1.picker:hover:has(input:checked + .w7) + .shadow, .w7 { background-position: var(--window-offset) calc(var(--v-offset) * 7); width: 30px; }
+.layer1.picker:hover:has(input:checked + .w8) + .shadow, .w8 { background-position: var(--window-offset) calc(var(--v-offset) * 8); width: 30px; }
+
+.a { min-height: 16px; }
+.a0 { background-position: var(--wheel-offset) -29px; width: 16px; }
+.a1 { background-position: var(--wheel-offset) calc(var(--v-offset) * 1 - 29px); width: 17px; }
+.a2 { background-position: var(--wheel-offset) calc(var(--v-offset) * 2 - 29px); width: 15px; }
+.a3 { background-position: var(--wheel-offset) calc(var(--v-offset) * 3 - 29px); width: 16px; }
+.a4 { background-position: var(--wheel-offset) calc(var(--v-offset) * 4 - 29px); width: 17px; }
+.a5 { background-position: var(--wheel-offset) calc(var(--v-offset) * 5 - 29px); width: 15px; }
+
+.l { min-height: 16px; }
+.l0 { background-position: var(--window-offset) -29px; width: 18px;  }
+.l1 { background-position: var(--window-offset) calc(var(--v-offset) * 1 - 29px); width: 20px;  }
+.l2 { background-position: var(--window-offset) calc(var(--v-offset) * 2 - 29px); width: 20px;  }
+.l3 { background-position: var(--window-offset) calc(var(--v-offset) * 3 - 29px); width: 20px;  }
+.l4 { background-position: var(--window-offset) calc(var(--v-offset) * 4 - 29px); width: 13px;  }
+.l5 { background-position: var(--window-offset) calc(var(--v-offset) * 5 - 29px); width: 13px;  }
+
+.spot0 { background-position: var(--extra-offset) 0; width: 16px; }
+.spot1 { background-position: var(--extra-offset) var(--v-offset); width: 22px; }
+.spot2 { background-position: var(--extra-offset) calc(var(--v-offset) * 2); width: 22px; }
+.blank { background-position: var(--extra-offset) calc(var(--v-offset) * 3); width: 22px; }
+
+.picker:hover > input + .label.a,
+.picker:hover > input + .label.l { display: none; }
+.picker:hover > input:checked + .label.w ~ .label.a,
+.picker:hover > input:checked + .label.w ~ .label.l { display: inline-block; }
+
+.picker:has(input:checked + .h) ~ .picker,
+.picker:has(input:checked + .spot) ~ .picker:has(input:checked + .spot) {
+    display: none;
+}
 </style>
 <script>
 $(function() {
-    function option$(id, groupName, checked) {
-        return $('<span/>').html([
+    function option$(cls, pos, groupName, checked) {
+        var id = cls + pos;
+        return [
             $('<input/>', {'type': 'radio', value: id, id: groupName + id, checked: checked, name: groupName}),
-            $('<label/>', {'for': groupName + id, 'class': id, title: id}).html('&nbsp;')
-        ]);
+            $('<span class="label ' + cls + ' ' + id + '" />').html([
+                $('<label/>', {'for': groupName + id, title: id}).html('&nbsp;')
+            ])
+        ];
     }
     
     function layer1$(groupName) {
-        return $('<div/>', {'class': groupName + ' layer1 slot picker'}).append(
-                option$('spot', groupName, 'checked'),
+        return [$('<div/>', {'class': groupName + ' layer1 slot picker'}).append(
+                option$('spot', 2, groupName, 'checked'),
                 $.map(Array.from(new Array(2).keys()), function(n) {
-                    return option$('t' + n, groupName);
+                    return option$('t', n, groupName);
                 }),
                 $.map(Array.from(new Array(2).keys()), function(n) {
-                    return option$('h' + n, groupName);
-                }),
-                $('<br/>'),
-                $.map(Array.from(new Array(7).keys()), function(n) {
-                    return option$('d' + n, groupName);
+                    return option$('h', n, groupName);
                 }),
                 $('<br/>'),
                 $.map(Array.from(new Array(9).keys()), function(n) {
-                    return option$('w' + n, groupName);
-                })
-            );
+                    return option$('d', n, groupName);
+                }),
+                $('<br/>'),
+                $.map(Array.from(new Array(9).keys()), function(n) {
+                    return option$('w', n, groupName);
+                }),
+                $('<br/>'),
+                $.map(Array.from(new Array(6).keys()), function(n) {
+                    return option$('a', n, groupName + 'l1');
+                }),
+                $('<br/>'),
+                $.map(Array.from(new Array(6).keys()), function(n) {
+                    return option$('l', n, groupName + 'l1');
+                }),
+            ),
+            $('<label class="shadow spot1">&nbsp;</label>')];
     }
     
     function playground$(id) {
-        return $('<div id="' + id + '" />').append($.map(Array.from(new Array(20).keys()), function(n) {
-            return layer1$(id + 'slot' + (n + 1));
+        return $('<div class="playground" id="' + id + '" />').append($.map(Array.from(new Array(20).keys()), function(n) {
+            return layer1$(id + 'slot' + n);
         }));
     }
     
@@ -115,18 +184,39 @@ $(function() {
     
     function inflateBus(board, blueprint) {
         var a = blueprint.split(' ');
-        $(board + ' .slot').map(function(n, i) {
-            $(':input', i).val([a[n]]);
+        
+        var cbnames = [];
+        $(':input[name!=""]', board).each(function() {
+            if (!~$.inArray(this.name, cbnames)) {
+                cbnames.push(this.name);
+                var prefix = a[0].substr(0, 1);
+                
+                var radio$ = $(':input[name="' + this.name + '"]', board);
+                var prefixes = [];
+                radio$.each(function() {
+                    var p = $(this).val().substr(0, 1);
+                    if(!~$.inArray(p, prefixes)) {
+                        prefixes.push(p);
+                    }
+                });
+                
+                //console.log([a[0], prefixes, this]);
+                
+                if(prefixes.includes(prefix)) {
+                    radio$.val([a.shift()]);
+                    if(0 == a.length) return false;
+                }
+            }
         });
     }
     
-    inflateBus('#playground0', 't0 d4 w2 w2 d4 w2 w2 d4 h0');
-    inflateBus('#playground1', 't0 w4 d0 w7 w7 w7 w7 d0 h0');
-    inflateBus('#playground2', 't0 w4 w4 w8 w8 w8 w8 d0 h0');
-    inflateBus('#playground3', 't0 w6 d0 w8 w8 w2 d0 h0');
-    inflateBus('#playground4', 't0 w4 d0 w8 w8 w8 w8 d0 h0');
-    inflateBus('#playground5', 't0 d5 w2 w2 d5 t1 w2 w2 d5 w2 w2 d5 h0');
-    inflateBus('#playground6', 't0 w6 d6 w2 w2 d6 w0 w2 w6 d6 h0');
+    inflateBus('#playground0', 't0 d7 w2 a0 w2 l0 d7 w2 l3 w2 a3 d4 h0');
+    inflateBus('#playground1', 't0 w4 l4 d0 w7 a1 w7 l1 w7 l1 w7 a4 d0 h0');
+    inflateBus('#playground2', 't0 w4 l4 w4 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
+    inflateBus('#playground3', 't0 w6 d0 w8 a2 w8 l1 w2 a5 d0 h0');
+    inflateBus('#playground4', 't0 w4 l4 d0 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
+    inflateBus('#playground5', 't0 d5 w2 a3 w2 l2 d5 t1 w2 a0 w2 l0 d5 w2 l3 w2 a3 d5 h0');
+    inflateBus('#playground6', 't0 w6 d6 w2 a0 w2 l0 d6 w0 l3 w2 a3 w6 d6 h0');
 });
 </script>
 </head>
