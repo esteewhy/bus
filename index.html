@@ -6,11 +6,9 @@
   crossorigin="anonymous"></script>
 <style>
 label { cursor: hand; }
-.tile,.picker label { background-image: url(tiles.png); min-width: 7px; min-height: 47px; }
+.tile,.picker label { background-image: url(https://lh3.googleusercontent.com/u/0/drive-viewer/AFGJ81rmuo_6NPyqvyGba4UwHRunneLejFLj5jGPy8LxN28UGAqkqJD1uuWnrFFfHvj-XHlTfl2uf4fIfR_SnKBTd5X8kDA-3A=w1600-h827); min-width: 7px; min-height: 47px; }
 
 input { position: absolute; left: -999px; }
-input + label { display: none; }
-:checked + label { display: inline-block; }
 
 .shadow label {
     display: inline-flex;
@@ -39,17 +37,14 @@ input + label { display: none; }
 .picker input + .a,
 .picker input + .l { min-height: 16px; }
 .picker input + label:hover { background-color: white; }
-.picker input + label:hover {
-    background-color: transparent;
-    cursor: pointer;
-}
+
 .picker :checked + label {
     border: 1px solid red;
     background-color: white;
     border-radius: 2px;
 }
 
-.picker input + label { display: inline-block; margin: 1px; } 
+.picker label { display: inline-block; margin: 1px; } 
 
 :root {
     --wheel-offset: -29px;
@@ -116,8 +111,8 @@ input + label { display: none; }
 .picker input + .l { display: none; }
 
 .shadow,
-.shadow:has(~ .picker :checked + .l) .bottom,
-.shadow:has(~ .picker :checked + .a) .bottom,
+.shadow:has(~ .picker :checked + .l):has(~ .picker :checked + .w) .bottom,
+.shadow:has(~ .picker :checked + .a):has(~ .picker :checked + .w) .bottom,
 .picker :checked + .w ~ :checked + .a,
 .picker :checked + .w ~ .a,
 .picker :checked + .w ~ :checked + .l,
@@ -202,23 +197,24 @@ $(function() {
     }
     
     function playground$(id) {
-        return $('<div class="playground" id="' + id + '" />')
+        return $('<div class="bus" id="' + id + '" />')
             .append($.map(Array.from(new Array(20).keys()), function(n) {
                 return slot$(id, n);
-            }));
+            }))
+            .append('<a class="share" href>share</a>');
     }
     
     $('#slots').replaceWith(
         $.map(Array.from(new Array(7).keys()), function(n) {
-            return playground$('playground' + n);
+            return playground$('bus' + n);
         })
     );
     
     function inflateBus(board, blueprint) {
-        var a = blueprint.split(' ');
+        var a = blueprint.replace(/(\d)([a-z])/ig, '$1 $2').split(' ');
         
         var cbnames = [];
-        $(':input[name!=""]', board).each(function() {
+        $(':input[name!=""]:not(.close):not(.open)', board).each(function() {
             if (!~$.inArray(this.name, cbnames)) {
                 cbnames.push(this.name);
                 var prefix = a[0].substr(0, 1);
@@ -239,15 +235,47 @@ $(function() {
             }
         });
     }
+
+    function deflateBus(board) {
+        var cbnames = [];
+        
+        $(':input[name!=""]:not(.close):not(.open)', board).each(function() {
+            if (!~$.inArray(this.name, cbnames)) {
+                cbnames.push(this.name);
+            }
+        });
+        
+        return $.map(cbnames, function(name) {
+            var v = $(':input[name="' + name + '"]:checked', board).val();
+            return 'spot2' !== v ? v : null;
+        }).join(' ');
+    }
     
-    inflateBus('#playground0', 't0 d7 w2 a0 w2 l0 d7 w2 l3 w2 a3 d4 h0');
-    inflateBus('#playground1', 't0 w4 l4 d0 w7 a1 w7 l1 w7 l1 w7 a4 d0 h0');
-    inflateBus('#playground2', 't0 w4 l4 w4 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
-    inflateBus('#playground3', 't0 w6 d0 w8 a2 w8 l1 w2 a5 d0 h0');
-    inflateBus('#playground4', 't0 w4 l4 d0 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
-    inflateBus('#playground5', 't0 d5 w2 a3 w2 l2 d5 t1 w2 a0 w2 l0 d5 w2 l3 w2 a3 d5 h0');
-    inflateBus('#playground6', 't0 w6 d6 w2 a0 w2 l0 d6 w0 l3 w2 a3 w6 d6 h0');
+    inflateBus('#bus0', 't0d7 w2 a0 w2 l0 d7 w2 l3 w2 a3 d4 h0');
+    inflateBus('#bus1', 't0 w4 l4 d0 w7 a1 w7 l1 w7 l1 w7 a4 d0 h0');
+    inflateBus('#bus2', 't0 w4 l4 w4 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
+    inflateBus('#bus3', 't0 w6 d0 w8 a2 w8 l1 w2 a5 d0 h0');
+    inflateBus('#bus4', 't0 w4 l4 d0 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
+    inflateBus('#bus5', 't0 d5 w2 a3 w2 l2 d5 t1 w2 a0 w2 l0 d5 w2 l3 w2 a3 d5 h0');
+    inflateBus('#bus6', 't0 w6 d6 w2 a0 w2 l0 d6 w0 l3 w2 a3 w6 d6 h0');
+    
+    $(document).on('change', '[type="radio"]', function() {
+        var board = $(this).parents('.bus');
+        $('.share', board).attr('href', '?' + board.get(0).id + '=' + encodeURIComponent(deflateBus(board).replace(/\s/g, '')));
+    });
+    
+    $.each((function () {//https://stackoverflow.com/a/21152762/35438
+      return location.search
+        ? location.search.substr(1).split`&`.reduce((qd, item) => {let [k,v] = item.split`=`; v = v && decodeURIComponent(v); (qd[k] = qd[k] || []).push(v); return qd}, {})
+        : {}
+    })(), function(key, values) {
+        console.log([key, values[0]]);
+        inflateBus('#' + key, values[0]);
+    });
+    
+    $('.bus .slot:first-of-type :input.open').trigger('change');
 });
+
 </script>
 </head>
 <body>
