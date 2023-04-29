@@ -87,7 +87,7 @@ $(function() {
         });
     }
 
-    inflateBus('#bus0', 't0 d7 w2 a0 w2 l0 d0 w2 l3 w2 a3 d5 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0');
+    inflateBus('#bus0', 't0 d7 w2 a0 w2 l0 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0');
     inflateBus('#bus1', 't0 w4 l4 d0 w7 a1 w7 l1 w7 l1 w7 a4 d0 h0');
     inflateBus('#bus2', 't0 w4 l4 w4 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
     inflateBus('#bus3', 't0 w6 d0 w8 a2 w8 l1 w2 a5 d0 h0');
