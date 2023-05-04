@@ -43,7 +43,10 @@ $(function() {
                 '<br/>',
                 _grp(6, 'a', 'bottom'),
                 '<br/>',
-                _grp(6, 'l', 'bottom')
+                _grp(6, 'l', 'bottom'),
+                '<br/>',
+                option$('l', '00', groupName, 'bottom'),
+                option$('l', '000', groupName, 'bottom')
             )
         );
     }
@@ -87,13 +90,13 @@ $(function() {
         });
     }
 
-    inflateBus('#bus0', 't0 d7 w2 a0 w2 l0 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0');
-    inflateBus('#bus1', 't0 w4 l4 d0 w7 a1 w7 l1 w7 l1 w7 a4 d0 h0');
-    inflateBus('#bus2', 't0 w4 l4 w4 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
-    inflateBus('#bus3', 't0 w6 d0 w8 a2 w8 l1 w2 a5 d0 h0');
-    inflateBus('#bus4', 't0 w4 l4 d0 w8 a1 w8 l1 w8 l1 w8 a4 d0 h0');
-    inflateBus('#bus5', 't0 d5 w2 a3 w2 l2 d5 t1 w2 a0 w2 l0 d5 w2 l3 w2 a3 d5 h0');
-    inflateBus('#bus6', 't0 w6 d6 w2 a0 w2 l0 d6 w0 l3 w2 a3 w6 d6 h0');
+    inflateBus('#bus0', 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0');
+    inflateBus('#bus1', 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0');
+    inflateBus('#bus2', 't0 w4 l4 w4 w8 a1 w8 l000 w8 w8 a4 d0 h0');
+    inflateBus('#bus3', 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0');
+    inflateBus('#bus4', 't0 w4 l4 d0 w8 a1 w8 l000 w8 w8 a4 d0 h0');
+    inflateBus('#bus5', 't0 d5 w2 a3 w2 l2 d5 t1 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0');
+    inflateBus('#bus6', 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0');
     
     $.each((function () {//https://stackoverflow.com/a/21152762/35438
       return location.search
