@@ -34,7 +34,7 @@ label { cursor: hand; }
 
 .picker input + .w  { min-height: 20px; }
 .picker input + .a,
-.picker input + .l { min-height: 16px; }
+.picker input + .l { min-height: 17px; max-height: 17px; }
 .picker input + label:hover { background-color: white; }
 
 .picker :checked + label {
@@ -84,7 +84,7 @@ label { cursor: hand; }
 .shadow:has(~ .picker :checked + .w8) .top, .w8 { background-position: var(--wx) calc(var(--dy) * 8); width: 30px; }
 
 .shadow:has(~ .picker :checked + .a) .bottom,
-.a { min-height: 16px; }
+.a { min-height: 17px; }
 .shadow:has(~ .picker :checked + .a0) .bottom, .a0 { background-position: var(--ax) -29px; width: 16px; }
 .shadow:has(~ .picker :checked + .a1) .bottom, .a1 { background-position: var(--ax) calc(var(--dy) * 1 - 29px); width: 17px; }
 .shadow:has(~ .picker :checked + .a2) .bottom, .a2 { background-position: var(--ax) calc(var(--dy) * 2 - 29px); width: 15px; }
@@ -95,7 +95,7 @@ label { cursor: hand; }
 .shadow:has(~ .picker :checked + .a5) .bottom { right: 0; }
 
 .shadow:has(~ .picker input:checked + .l) .bottom,
-.l { min-height: 16px; }
+.l { min-height: 17px; }
 .shadow:has(~ .picker :checked + .l0) .bottom, .l0 { background-position: var(--wx) -29px; width: 20px;  }
 .shadow:has(~ .picker :checked + .l1) .bottom, .l1 { background-position: var(--wx) calc(var(--dy) * 1 - 29px); width: 20px;  }
 .shadow:has(~ .picker :checked + .l2) .bottom, .l2 { background-position: var(--wx) calc(var(--dy) * 2 - 29px); width: 20px;  }
@@ -117,23 +117,13 @@ label { cursor: hand; }
 .shadow:has(~ .picker :checked + .r1) .top, .r1 { background-position: var(--rx) calc(var(--dy) * 1); width: var(--δr); }
 
 .tile.bottom,
-.picker input + .a,
-.picker input + .l { display: none; }
+.picker .conditional,
+.picker .conditional  ~ * { display: none; }
 
 .shadow,
-.shadow:has(~ .picker :checked + .l):has(~ .picker :checked + .w) .bottom,
-.shadow:has(~ .picker :checked + .a):has(~ .picker :checked + .w) .bottom,
-.picker :checked + .w ~ :checked + .a,
-.picker :checked + .w ~ .a,
-.picker :checked + .w ~ :checked + .l,
-.picker :checked + .w ~ .l { display: inline-block; }
-
-#port:not(:checked) ~ .bus .slot:has(.picker :checked + .h) ~ .slot,
-.slot:has(.picker :checked + .spot) ~ .slot:has(.picker :checked + .spot) { display: none; }
-
-.slot:has(.picker :checked + .f) ~ .slot .tile {
-    transform: scaleX(-1);
-}
+.shadow:has(~ .picker .conditional ~ :checked):has(~ .picker :checked + .w) .bottom,
+.picker :checked + .w ~ .conditional,
+.picker :checked + .w ~ .conditional ~ * { display: inline-block; }
 
 .shadow:has(~ .picker :checked + .spot2) .top,
 .spot2,
@@ -156,12 +146,22 @@ blink {
 
 .bus {
     display: inline-block;
-    margin: 20px;
+    margin: 10px;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 10px;
 }
 
-#ddd:checked ~ .bus {
+*:has(#ddd:checked) ~ .bus {
     transform: perspective(3cm) rotateX(351deg) rotateY(333deg);
 }
+
+*:has(#port:not(:checked)) ~ .bus .slot:has(.picker :checked + .h) ~ .slot,
+.slot:has(.picker :checked + .spot) ~ .slot:has(.picker :checked + .spot) { display: none; }
+.slot:has(.picker :checked + .f) ~ .slot .tile {
+    transform: scaleX(-1);
+}
+
 #all-close {
     position: absolute;
     left: -999px;
@@ -170,7 +170,54 @@ blink {
     position: absolute;
     left: 0;
     right: 0;
+    top: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
 }
+
+.menu-input { position: absolute; left: -999px; }
+.menu {
+    display: inline-block;
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    margin: 5px;
+}
+.menu .bar {
+  width: 100%;
+  height: 20%;
+  background-color: #ccc;
+  margin: 20% 0;
+  transition: 0.4s;
+}
+.menu:hover .bar { background-color: #777; }
+.menu .bar:nth-child(1) { margin-top: 0; }
+.menu-input:checked + .menu .bar:nth-child(1) { transform: translate(0, 0.37em) rotate(-45deg); }
+.menu-input:checked + .menu .bar:nth-child(2) { opacity: 0; }
+.menu-input:checked + .menu .bar:nth-child(3) { transform: translate(0, -0.37em) rotate(45deg); }
+.menu-input + .menu ~ * { display: none; }
+.menu-input:checked + .menu ~ * { display: initial; }
+
+.settings {
+    position: fixed;
+    z-index: 3;
+    opacity: 0.8;
+    background-color: white;
+}
+
+.options {
+    display: inline-block;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    position: absolute;
+    margin-top: -20px;
+}
+.options:has(.menu-input:checked) {
+    padding: 0 5px 5px 0;
+}
+.options .menu {
+    scale: 0.5;
+    margin: 0;
+}
+.templates { display: none; }

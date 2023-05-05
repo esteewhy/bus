@@ -40,7 +40,7 @@ $(function() {
                 _grp(9, 'd', 'top'),
                 '<br/>',
                 _grp(9, 'w', 'top'),
-                '<br/>',
+                '<br class="conditional"/>',
                 _grp(6, 'a', 'bottom'),
                 '<br/>',
                 _grp(6, 'l', 'bottom'),
@@ -123,7 +123,9 @@ $(function() {
         }).join(' ');
     }
     
-    $('.bus:not(:has(.share))').append('<a class="share" href>share</a>');
+    $('.bus:not(:has(.options))').append($('.templates > .options').clone())
+            .find('.menu-input').attr('id', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
+            .find('.menu').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end();
     
     $(document).on('change', '.bus [type="radio"]', function() {
         var board = $(this).parents('.bus');
@@ -131,4 +133,28 @@ $(function() {
     });
     
     $('.bus .slot:first-of-type :input.open').trigger('change');
+});
+
+$(function() {
+    $('.picker').prepend($('<a href="" class="insert">+</a><a href="" class="delete">-</a><br/>'));
+    
+    $(document).on('click', '.bus .insert', function(e) {
+        var $slot = $(this).parents('.slot');
+        var counter = $slot.parents('.bus').find('>.slot').length;
+        var makeUnique = function(n, i) { return i && i.replace(/slot(\d+)/, 'slot' + counter); };
+        
+        $slot.before(
+            $slot.clone()
+                .find('[for],[name],[id]')
+                .attr('for', makeUnique)
+                .attr('name', makeUnique)
+                .attr('id', makeUnique)
+                .end()
+        );
+        return false;
+    });
+    $(document).on('click', '.bus .delete', function(e) {
+        $(this).parents('.slot').remove();
+        return false;
+    });
 });
