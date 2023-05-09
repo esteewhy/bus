@@ -1,7 +1,10 @@
 label { cursor: hand; }
 .tile,.picker label { background-image: url(https://lh3.googleusercontent.com/u/0/drive-viewer/AFGJ81rmuo_6NPyqvyGba4UwHRunneLejFLj5jGPy8LxN28UGAqkqJD1uuWnrFFfHvj-XHlTfl2uf4fIfR_SnKBTd5X8kDA-3A=w1600-h827); min-width: 7px; min-height: 47px; }
 
-.bus input { position: absolute; left: -999px; }
+.bus input {
+    position: absolute;
+    left: -999px;
+}
 
 .shadow label {
     display: inline-flex;
@@ -59,7 +62,7 @@ label { cursor: hand; }
 .shadow:has(~ .picker :checked + .h1) .top, .h1 { background-position: var(--hx) var(--dy); width: 7px; }
 
 .shadow:has(~ .picker :checked + .t0) .top, .t0 { background-position: 0 0; width: 7px; }
-.shadow:has(~ .picker :checked + .t1) .top, .t1 { background-position: -8px 0; width: 20px; }
+.shadow:has(~ .picker :checked + .j0) .top, .j0 { background-position: -8px 0; width: 20px; }
 
 .shadow:has(~ .picker :checked + .d0) .top, .d0 { background-position: var(--dx) 0; width: 16px; }
 .shadow:has(~ .picker :checked + .d1) .top, .d1 { background-position: var(--dx) var(--dy); width: 16px; }
@@ -150,6 +153,7 @@ blink {
     border: 1px solid #eee;
     padding: 10px;
     border-radius: 10px;
+    white-space: nowrap;
 }
 
 *:has(#ddd:checked) ~ .bus {
@@ -157,67 +161,36 @@ blink {
 }
 
 *:has(#port:not(:checked)) ~ .bus .slot:has(.picker :checked + .h) ~ .slot,
-.slot:has(.picker :checked + .spot) ~ .slot:has(.picker :checked + .spot) { display: none; }
-.slot:has(.picker :checked + .f) ~ .slot .tile {
+*:has(#port:not(:checked)) ~ .bus .f,
+*:has(#port:not(:checked)) ~ .bus .r,
+.slot .f,
+.slot .r,
+.slot:has(:checked + .t) ~ .slot .t,
+.slot:has(:checked + .h) ~ .slot .h,
+.slot:has(:checked + .h) + .slot .picker input + :not(.f),
+.slot:has(:checked + .f) ~ .slot .f,
+.slot:has(:checked + .f) + .slot .picker input + :not(.h),
+.slot:has(:checked + .f) ~ .slot:has(:checked + .h) ~ .slot .h,
+.slot:has(:checked + .f) ~ .slot:has(:checked + .t) + .slot .picker input + :not(.r),
+.slot:has(:checked + .r) ~ .slot,
+.slot:has(.picker :checked + .spot) ~ .slot:has(.picker :checked + .spot) {
+    display: none;
+}
+
+.slot:has(:checked + .h) + .slot .f,
+.slot:has(:checked + .f) + .slot .h,
+.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot .picker input + :not(.f):not(.r):not(.t):not(.h),
+.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot .t,
+.slot:has(:checked + .f) ~ .slot:has(:checked + .t) + .slot .r {
+    display: inline-block;
+}
+
+.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot .f,
+.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot:has(:checked + .t) + .slot .picker input + :not(.r) {
+    display: none;
+}
+
+.slot:has(.picker :checked + .f) ~ .slot .tile,
+.slot:has(.picker :checked + .f) ~ .slot .picker input + :not(.r) {
     transform: scaleX(-1);
 }
-
-#all-close {
-    position: absolute;
-    left: -999px;
-}
-#all-close + label {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-}
-
-.menu-input { position: absolute; left: -999px; }
-.menu {
-    display: inline-block;
-    cursor: pointer;
-    width: 15px;
-    height: 15px;
-    margin: 5px;
-}
-.menu .bar {
-  width: 100%;
-  height: 20%;
-  background-color: #ccc;
-  margin: 20% 0;
-  transition: 0.4s;
-}
-.menu:hover .bar { background-color: #777; }
-.menu .bar:nth-child(1) { margin-top: 0; }
-.menu-input:checked + .menu .bar:nth-child(1) { transform: translate(0, 0.37em) rotate(-45deg); }
-.menu-input:checked + .menu .bar:nth-child(2) { opacity: 0; }
-.menu-input:checked + .menu .bar:nth-child(3) { transform: translate(0, -0.37em) rotate(45deg); }
-.menu-input + .menu ~ * { display: none; }
-.menu-input:checked + .menu ~ * { display: initial; }
-
-.settings {
-    position: fixed;
-    z-index: 3;
-    opacity: 0.8;
-    background-color: white;
-}
-
-.options {
-    display: inline-block;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    position: absolute;
-    margin-top: -20px;
-}
-.options:has(.menu-input:checked) {
-    padding: 0 5px 5px 0;
-}
-.options .menu {
-    scale: 0.5;
-    margin: 0;
-}
-.templates { display: none; }

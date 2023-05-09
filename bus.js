@@ -32,7 +32,8 @@ $(function() {
             shadow$(groupName, 'close'),
             $('<div/>', {'class': 'picker'}).append(
                 option$('spot', 2, groupName, 'top', 'checked'),
-                _grp(2, 't', 'top'),
+                option$('t', 0, groupName, 'top'),
+                option$('j', 0, groupName, 'top'),
                 _grp(2, 'h', 'top'),
                 _grp(3, 'f', 'top'),
                 _grp(2, 'r', 'top'),
@@ -91,11 +92,11 @@ $(function() {
     }
 
     inflateBus('#bus0', 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0');
-    inflateBus('#bus1', 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0');
+    inflateBus('#bus1', 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0 f0 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1');
     inflateBus('#bus2', 't0 w4 l4 w4 w8 a1 w8 l000 w8 w8 a4 d0 h0');
-    inflateBus('#bus3', 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0');
+    inflateBus('#bus3', 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1');
     inflateBus('#bus4', 't0 w4 l4 d0 w8 a1 w8 l000 w8 w8 a4 d0 h0');
-    inflateBus('#bus5', 't0 d5 w2 a3 w2 l2 d5 t1 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0');
+    inflateBus('#bus5', 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0');
     inflateBus('#bus6', 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0');
     
     $.each((function () {//https://stackoverflow.com/a/21152762/35438
@@ -104,6 +105,10 @@ $(function() {
         : {}
     })(), function(key, values) {
         inflateBus('#' + key, values[0]);
+    });
+    
+    $(document).on('click', '.settings .insert', function() {
+        
     });
 });
 
@@ -133,12 +138,18 @@ $(function() {
     });
     
     $('.bus .slot:first-of-type :input.open').trigger('change');
+    
+    $(document).on('click', '.bus .options .delete', function() {
+        $(this).parents('.bus').remove();
+        return false;
+    });
+    
 });
 
 $(function() {
-    $('.picker').prepend($('<a href="" class="insert">+</a><a href="" class="delete">-</a><br/>'));
+    $('.picker').prepend($('<a href="" class="insert" title="insert">+</a><a href="" class="delete" title="delete">-</a><br/>'));
     
-    $(document).on('click', '.bus .insert', function(e) {
+    $(document).on('click', '.picker .insert', function(e) {
         var $slot = $(this).parents('.slot');
         var counter = $slot.parents('.bus').find('>.slot').length;
         var makeUnique = function(n, i) { return i && i.replace(/slot(\d+)/, 'slot' + counter); };
@@ -153,7 +164,7 @@ $(function() {
         );
         return false;
     });
-    $(document).on('click', '.bus .delete', function(e) {
+    $(document).on('click', '.picker .delete', function(e) {
         $(this).parents('.slot').remove();
         return false;
     });
