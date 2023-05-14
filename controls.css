@@ -12,7 +12,7 @@
     z-index: 0;
 }
 
-.menu-input { position: absolute; left: -999px; }
+.menu-input { position: absolute; left: -9999px; }
 .menu {
     display: inline-block;
     cursor: pointer;
@@ -91,3 +91,10 @@
     left: 4px;
 }
 .templates { display: none; }
+
+:checked.menu-input ~ .menu.close {
+    display: block;
+    position: absolute;
+    top: 0px;
+    z-index: 2;
+}

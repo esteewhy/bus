@@ -127,7 +127,7 @@ $(function() {
 
 $(function() {
     $('.bus:not(:has(.options))').prepend($('.templates > .options').clone())
-        .find('.menu').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
+        .find('.menu.open').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
         .find('.menu-input').attr('id', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end();
     
     $('.paint').append(function(n, s) {
