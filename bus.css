@@ -3,7 +3,7 @@ label { cursor: hand; }
 
 .bus input {
     position: absolute;
-    left: -999px;
+    left: -9999px;
 }
 
 .shadow label {

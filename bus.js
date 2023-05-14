@@ -26,6 +26,7 @@ function slot$(parentId, n) {
             return option$(typ, n, groupName, tgt);
         });
     };
+    
     return $('<span class="slot" />').append(
         shadow$(groupName, 'open'),
         shadow$(groupName, 'close'),
@@ -146,12 +147,14 @@ $(function() {
         if(window.localStorage) {
             window.localStorage.setItem(k, v);
         }
-    });
-    
-    $('.bus .slot:first-of-type :input.open').triggerHandler('change');
+        
+        //if($('.bus:not(:has(:checked + .h)').length) {
+        //    $('.bus:last-of-type').after(playground$('bus' + new Date().getMilliseconds()));
+        //}
+    }).trigger('change');
     
     $(document).on('click', '.bus .options .delete', function() {
-        $(this).parents('.bus').remove();
+        confirm('Sure to scrape this vehicle?') && $(this).parents('.bus').remove();
         return false;
     });
     
@@ -160,24 +163,38 @@ $(function() {
 $(function() {
     $('.picker').prepend($('<a href="" class="insert" title="insert">+</a><a href="" class="delete" title="delete">-</a><br/>'));
     
+    var up = function(m, p1) { return "slot" + (parseInt(p1) + 1); };
+    var down = function(m, p1) { return "slot" + (parseInt(p1) - 1); };
+    var renumber = function(replacer) { return function(n, i) { return i && i.replace(/slot(\d+)/, replacer); } };
+    
     $(document).on('click', '.picker .insert', function(e) {
         var $slot = $(this).parents('.slot');
-        var counter = $slot.parents('.bus').find('>.slot').length;
-        var makeUnique = function(n, i) { return i && i.replace(/slot(\d+)/, 'slot' + counter); };
-        
-        $slot.before(
-            $slot.clone()
-                .find('[for],[name],[id]')
-                .attr('for', makeUnique)
-                .attr('name', makeUnique)
-                .attr('id', makeUnique)
-                .end()
-        );
+        console.log($slot.get());
+        $($slot.clone()
+            .insertBefore($slot)
+            .nextAll()
+            .get()
+            .reverse())
+            .each(function() {
+                $(this).find('[for],[name],[id]')
+                    .attr('for', renumber(up))
+                    .attr('name', renumber(up))
+                    .attr('id', renumber(up));
+            });
         return false;
     });
     
     $(document).on('click', '.picker .delete', function(e) {
-        $(this).parents('.slot').remove();
+        confirm('Sure to remove this block?') && $(this).parents('.slot')
+            .nextAll()
+            .each(function() {
+                $(this).find('[for],[name],[id]')
+                    .attr('for', renumber(down))
+                    .attr('name', renumber(down))
+                    .attr('id', renumber(down));
+            })
+            .end()
+            .remove();
         return false;
     });
 });
