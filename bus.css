@@ -56,6 +56,7 @@ label { cursor: hand; }
     --fx: calc(var(--hx) - 7px);    --δf: 42px;
     --rx: calc(var(--fx) - var(--δf)); --δr: 38px;
     --dy: -47px;
+    --bg: white;
 }
 
 .shadow:has(~ .picker :checked + .h0) .top, .h0 { background-position: var(--hx) 0; width: 7px; }
@@ -126,6 +127,8 @@ label { cursor: hand; }
 .shadow:has(~ .picker :checked + .r0) .top, .r0 { background-position: var(--rx) 0; width: var(--δr); }
 .shadow:has(~ .picker :checked + .r1) .top, .r1 { background-position: var(--rx) calc(var(--dy) * 1); width: var(--δr); }
 
+.paint :checked + label,
+.picker :checked + label,
 .shadow:has(~ .picker :checked + .spot2) .top,
 .spot2,
 blink {
@@ -142,8 +145,13 @@ blink {
 .open:checked + label,
 .shadow:has(.close) label { display: none; }
 
-.shadow:has(.open:checked) ~ .picker { display: inline-block; }
-.shadow:has(.open:checked) ~ .shadow:has(.close) label { display: inline-flex; }
+.shadow:has(.open:checked) ~ .picker { display: inline-block; animation: fadeIn 0.5s; }
+.shadow:has(.open:checked) ~ .shadow:has(.close) label { display: inline-flex; animation: fadeIn 0.5s; }
+
+@keyframes fadeIn {
+     from { opacity: 0; }
+     to { opacity: 0.8; }
+}
 
 .bus {
     display: inline-block;
