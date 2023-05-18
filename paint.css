@@ -52,50 +52,30 @@
     background-size: 100% 47px;
     background-repeat: no-repeat;
 }
-.c1,.bus:has(:checked + .c1) {
-    background:
-        linear-gradient(to left, var(--bg) 20px, transparent 20px),
-        linear-gradient(to bottom, #E19000 52px, var(--bg) 52px);
-    background-size: 100% 42px;
+.bus {
+    background-size: calc(100% - 20px) 42px;
     background-position: 10px 10px;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat;    
+}
+.c1,.bus:has(:checked + .c1) {
+    background-image: linear-gradient(to bottom, #E19000 52px, var(--bg) 52px);
 }
 .c2,.bus:has(:checked + .c2) {
-    background:
-        linear-gradient(to left, var(--bg) 20px, transparent 20px),
-        linear-gradient(to bottom, white 10px 20px, #3B77B3 20px 32px, white 32px);
-    background-size: 100% 42px;
-    background-position: 10px 10px;
-    background-repeat: no-repeat;
+    background-image: linear-gradient(to bottom, white 10px 20px, #3B77B3 20px 32px, white 32px);
 }
 
 .c3,.bus:has(:checked + .c3) {
-    background:
-        linear-gradient(to left, var(--bg) 20px, transparent 20px),
-        linear-gradient(to bottom, #e6d2b5 10px 31px, rgb(134,26,34) 31px);
-    background-size: 100% 42px;
-    background-position: 10px 10px;
-    background-repeat: no-repeat;
+    background-image: linear-gradient(to bottom, #e6d2b5 10px 31px, rgb(134,26,34) 31px);
 }
 
 .c4,.bus:has(:checked + .c4) {
-    background:
-        linear-gradient(to left, var(--bg) 20px, transparent 20px),
-        linear-gradient(to bottom, blue 10px 31px, #e6d2b5 31px);
-    background-size: 100% 42px;
-    background-position: 10px 10px;
-    background-repeat: no-repeat;
+    background-image: linear-gradient(to bottom, blue 10px 31px, #e6d2b5 31px);
 }
 .c5,.bus:has(:checked + .c5) {
-    background:
-        linear-gradient(to left, var(--bg) 20px, transparent 20px),
-        linear-gradient(to bottom, rgb(134,26,34) 10px 31px, #e6d2b5 31px);
-    background-size: 100% 42px;
-    background-position: 10px 10px;
-    background-repeat: no-repeat;
+    background-image: linear-gradient(to bottom, rgb(134,26,34) 10px 31px, #e6d2b5 31px);
 }
 .slot:has(:checked + .spot2) {
-    background-color: white;
+    background-color: var(--bg);
 }
 
 .c {

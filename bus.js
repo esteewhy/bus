@@ -57,7 +57,16 @@ function playground$(id) {
     return $('<div class="bus" id="' + id + '" />')
         .append($.map(Array.from(new Array(20).keys()), function(n) {
             return slot$(id, n);
-        }));
+        }))
+        .prepend($('.templates > .options').clone())
+            .find('.menu.open').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
+            .find('.menu-input').attr('id', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
+            .find('.paint')
+                .append(function(n, s) {
+                    var parentId = $(this).parents('.bus').attr('id');
+                    
+                    return $.map(Array.from(new Array(6).keys()), n => option$('c', n, parentId, 'paint'));
+                }).end();
 }
 
 function inflateBus(board, blueprint) {
@@ -92,14 +101,10 @@ function inflateBus(board, blueprint) {
     }
 }
 
-function inflateFromUrl() {
-    $.each((function () {//https://stackoverflow.com/a/21152762/35438
-      return location.search
+function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
+    return location.search
         ? location.search.substr(1).split`&`.reduce((qd, item) => {let [k,v] = item.split`=`; v = v && decodeURIComponent(v); (qd[k] = qd[k] || []).push(v); return qd}, {})
-        : {}
-    })(), function(key, values) {
-        inflateBus('#' + key, values[0]);
-    });
+        : {};
 }
 
 function deflateBus(board) {
@@ -118,26 +123,6 @@ function deflateBus(board) {
 }
 
 $(function() {
-    $('#slots').replaceWith(
-        $.map(Array.from(new Array(7).keys()), function(n) {
-            return playground$('bus' + n);
-        })
-    );
-});
-
-$(function() {
-    $('.bus:not(:has(.options))').prepend($('.templates > .options').clone())
-        .find('.menu.open').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
-        .find('.menu-input').attr('id', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end();
-    
-    $('.paint').append(function(n, s) {
-        var parentId = $(this).parents('.bus').attr('id');
-        
-        return $.map(Array.from(new Array(6).keys()), function(n) {
-            return option$('c', n, parentId, 'paint');
-        });
-    });
-    
     $(document).on('change', '.bus [type="radio"]', function() {
         var board = $(this).parents('.bus');
         var k = board.get(0).id;
@@ -158,6 +143,27 @@ $(function() {
         return false;
     });
     
+});
+
+$(function() {
+    var anchor$ = $('#slots');
+    var entries = Object.entries(Object.assign(localStorage, getUrlParams())).filter(kvp => kvp[0].match(/^bus\d+$/i));
+    
+    if(!entries.length) entries = Object.entries({
+        'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
+        'bus1': 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2',
+        'bus2': 't0 w4 l4 w4 w8 a1 w8 l000 w8 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3',
+        'bus3': 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4',
+        'bus4': 't0 w4 l4 d0 w8 a1 w8 l000 w8 w8 a4 d0 h0 c5',
+        'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
+        'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0 c1'
+    });
+    
+    entries.sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
+        .forEach(kvp => {
+            var id = '#' + kvp[0];
+            inflateBus($(id).length ? $(id) : playground$(kvp[0]).insertAfter(anchor$), kvp[1]);
+        });
 });
 
 $(function() {
@@ -195,18 +201,7 @@ $(function() {
             })
             .end()
             .remove();
+        localStorage.removeItem($(this).parent('.bus').attr('id'));
         return false;
     });
-});
-
-$(function() {
-    inflateBus('#bus0', 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1');
-    inflateBus('#bus1', 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2');
-    inflateBus('#bus2', 't0 w4 l4 w4 w8 a1 w8 l000 w8 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3');
-    inflateBus('#bus3', 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4');
-    inflateBus('#bus4', 't0 w4 l4 d0 w8 a1 w8 l000 w8 w8 a4 d0 h0 c5');
-    inflateBus('#bus5', 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1');
-    inflateBus('#bus6', 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0 c1');
-    
-    inflateFromUrl();
 });

@@ -56,7 +56,7 @@ label { cursor: hand; }
     --fx: calc(var(--hx) - 7px);    --δf: 42px;
     --rx: calc(var(--fx) - var(--δf)); --δr: 38px;
     --dy: -47px;
-    --bg: white;
+    --bg: silver;
 }
 
 .shadow:has(~ .picker :checked + .h0) .top, .h0 { background-position: var(--hx) 0; width: 7px; }
@@ -160,6 +160,7 @@ blink {
     padding: 10px;
     border-radius: 10px;
     white-space: nowrap;
+    background-color: var(--bg)!important;
 }
 
 *:has(#ddd:checked) ~ .bus {
