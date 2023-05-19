@@ -10,13 +10,13 @@ function option$(typ, uid, groupName, cls, checked) {
 
 function shadow$(parentId, action) {
     var id = parentId + '-' + action;
-    return $('<div class="shadow" />').append(
+    return [
             $('<input/>', {'type': "radio", name: 'modal', id: id, 'class': action}),
-            $('<label/>', {'for': id}).append(
+            $('<label/>', {'for': id, 'class': 'shadow'}).append(
                 '<span class="tile top blank"/>',
                 '<span class="tile bottom blank"/>'
             ),
-        );
+        ];
 }
 
 function slot$(parentId, n) {
@@ -149,15 +149,19 @@ $(function() {
     var anchor$ = $('#slots');
     var entries = Object.entries(Object.assign(localStorage, getUrlParams())).filter(kvp => kvp[0].match(/^bus\d+$/i));
     
-    if(!entries.length) entries = Object.entries({
-        'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
-        'bus1': 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2',
-        'bus2': 't0 w4 l4 w4 w8 a1 w8 l000 w8 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3',
-        'bus3': 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4',
-        'bus4': 't0 w4 l4 d0 w8 a1 w8 l000 w8 w8 a4 d0 h0 c5',
-        'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
-        'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0 c1'
-    });
+    if(!entries.length) {
+        entries = Object.entries({
+            'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
+            'bus1': 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2',
+            'bus2': 't0 w4 l4 w4 w8 a1 w8 l000 w8 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3',
+            'bus3': 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4',
+            'bus4': 't0 w4 l4 d0 w8 a1 w8 l000 w8 w8 a4 d0 h0 c5',
+            'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
+            'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0 c1'
+        });
+        
+        entries.forEach(kvp => localStorage.setItem(kvp[9], kvp[1]));
+    }
     
     entries.sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
         .forEach(kvp => {
