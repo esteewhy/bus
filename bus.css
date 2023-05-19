@@ -6,7 +6,7 @@ label { cursor: hand; }
     left: -9999px;
 }
 
-label.shadow {
+.shadow label {
     display: inline-flex;
     flex-direction: column;
     min-height: 47px;
@@ -16,14 +16,15 @@ label.shadow {
     position: relative;
 }
 
-label.shadow .bottom {
+.shadow label .bottom {
     position: absolute;
     bottom: 0;
 }
 
 .picker {
-    visibility: hidden;
+    display: none;
     position: absolute;
+    margin-top: 47px;
     white-space: nowrap;
     z-index: 998;
     border: 1px solid gray;
@@ -139,13 +140,13 @@ blink {
 
 .slot,
 .tile { display: inline-block; }
-.close + .shadow { background-color: #faa; }
+.shadow:has(.close) { background-color: #faa; }
+.picker,
+.open:checked + label,
+.shadow:has(.close) label { display: none; }
 
-.open:checked + .shadow,
-.close + .shadow { display: none; }
-
-.open:checked ~ .picker { visibility: initial; animation: fadeIn 0.5s; }
-.open:checked ~ .close + .shadow { display: inline-flex; animation: fadeIn 0.5s; }
+.shadow:has(.open:checked) ~ .picker { display: inline-block; animation: fadeIn 0.5s; }
+.shadow:has(.open:checked) ~ .shadow:has(.close) label { display: inline-flex; animation: fadeIn 0.5s; }
 
 @keyframes fadeIn {
      from { opacity: 0; }
