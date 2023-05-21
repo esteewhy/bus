@@ -1,5 +1,5 @@
 label { cursor: hand; }
-.tile,.picker label { background-image: url(https://lh3.googleusercontent.com/u/0/drive-viewer/AFGJ81rmuo_6NPyqvyGba4UwHRunneLejFLj5jGPy8LxN28UGAqkqJD1uuWnrFFfHvj-XHlTfl2uf4fIfR_SnKBTd5X8kDA-3A=w1600-h827); min-width: 7px; min-height: 47px; }
+.tile,.picker label { background-image: url(tiles.png); min-width: 7px; min-height: 47px; }
 
 .bus input {
     position: absolute;
@@ -24,7 +24,6 @@ label { cursor: hand; }
 .picker {
     display: none;
     position: absolute;
-    margin-top: 47px;
     white-space: nowrap;
     z-index: 998;
     border: 1px solid gray;
@@ -140,12 +139,12 @@ blink {
 
 .slot,
 .tile { display: inline-block; }
-.shadow:has(.close) { background-color: #faa; }
+.shadow:has(.close) { background-color: #faa; opacity: 0.8; }
 .picker,
 .open:checked + label,
 .shadow:has(.close) label { display: none; }
 
-.shadow:has(.open:checked) ~ .picker { display: inline-block; animation: fadeIn 0.5s; }
+.shadow:has(.open:checked) ~ .picker { display: block; animation: fadeIn 0.5s; }
 .shadow:has(.open:checked) ~ .shadow:has(.close) label { display: inline-flex; animation: fadeIn 0.5s; }
 
 @keyframes fadeIn {
@@ -197,6 +196,8 @@ blink {
     display: none;
 }
 
+.left .slot .tile,
+.left .slot .picker input + :not(.r),
 .slot:has(.picker :checked + .f) ~ .slot .tile,
 .slot:has(.picker :checked + .f) ~ .slot .picker input + :not(.r) {
     transform: scaleX(-1);
