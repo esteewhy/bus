@@ -123,3 +123,8 @@ body { margin: 0; }
     top: 0px;
     z-index: 2;
 }
+
+.settings,
+.options .menu ~ a.delete {
+    display: none;
+}
