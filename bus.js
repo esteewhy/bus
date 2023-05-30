@@ -161,7 +161,7 @@ $(function() {
         'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0 c1'
     });
     
-    urlParams['add'] && confirm('Add vehicle?') && entries.push(['bus' + new Date().getTime(), urlParams['add'][0]]);
+    urlParams['add'] && entries.push(['bus' + new Date().getTime(), urlParams['add'][0]]);
     
     entries.sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
         .forEach(kvp => {
