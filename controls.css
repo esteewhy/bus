@@ -125,6 +125,12 @@ body { margin: 0; }
 }
 
 .settings,
-.options .menu ~ a.delete {
+#bus0 .options .menu ~ a.delete,
+#bus1 .options .menu ~ a.delete,
+#bus2 .options .menu ~ a.delete,
+#bus3 .options .menu ~ a.delete,
+#bus4 .options .menu ~ a.delete,
+#bus5 .options .menu ~ a.delete,
+#bus6 .options .menu ~ a.delete{
     display: none;
 }

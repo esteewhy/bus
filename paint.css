@@ -74,6 +74,9 @@
 .c5,.bus:has(:checked + .c5) {
     background-image: linear-gradient(to bottom, rgb(134,26,34) 10px 31px, #e6d2b5 31px);
 }
+.c6,.bus:has(:checked + .c6) {
+    background-image: linear-gradient(to bottom, #cc3300 10px 31px, #e6d2b5 31px);
+}
 .slot:has(:checked + .spot2) {
     background-color: var(--bg);
 }

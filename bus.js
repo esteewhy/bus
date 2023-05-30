@@ -65,7 +65,7 @@ function playground$(id) {
                 .append(function(n, s) {
                     var parentId = $(this).parents('.bus').attr('id');
                     
-                    return $.map(Array.from(new Array(6).keys()), n => option$('c', n, parentId, 'paint'));
+                    return $.map(Array.from(new Array(7).keys()), n => option$('c', n, parentId, 'paint'));
                 }).end();
 }
 
@@ -127,27 +127,29 @@ $(function() {
         var board = $(this).parents('.bus');
         var k = board.get(0).id;
         var v = encodeURIComponent(deflateBus(board).replace(/\s/g, ''));
-        $('.share', board).attr('href', '?' + k + '=' + v);
+        var isGenBus = k.match(/^bus\d$/);
+        $('.share', board).attr('href', '?' + (isGenBus ? 'add' : k) + '=' + v);
+        $('.share', board).text(isGenBus ? 'copy' : 'share');
         
         if(window.localStorage) {
             window.localStorage.setItem(k, v);
         }
-        
-        //if($('.bus:not(:has(:checked + .h)').length) {
-        //    $('.bus:last-of-type').after(playground$('bus' + new Date().getMilliseconds()));
-        //}
     }).trigger('change');
     
     $(document).on('click', '.bus .options .delete', function() {
-        confirm('Sure to scrape this vehicle?') && $(this).parents('.bus').remove();
+        confirm('Sure to scrape this vehicle?')
+            && (localStorage.removeItem($(this).parents('.bus').attr('id'))
+                || $(this).parents('.bus').remove());
         return false;
     });
     
 });
 
 $(function() {
+    var urlParams = getUrlParams();
+    window.history.pushState('object', document.title, location.href.split("?")[0]);
     var anchor$ = $('#slots');
-    var entries = Object.entries(Object.assign(localStorage, getUrlParams())).filter(kvp => kvp[0].match(/^bus\d+$/i));
+    var entries = Object.entries(Object.assign(localStorage, urlParams)).filter(kvp => kvp[0].match(/^bus\d+$/i));
     
     if(!entries.length) entries = Object.entries({
         'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
@@ -158,6 +160,8 @@ $(function() {
         'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
         'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0 c1'
     });
+    
+    urlParams['add'] && confirm('Add vehicle?') && entries.push(['bus' + new Date().getTime(), urlParams['add'][0]]);
     
     entries.sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
         .forEach(kvp => {
