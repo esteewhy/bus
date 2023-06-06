@@ -65,7 +65,7 @@ function playground$(id) {
                 .append(function(n, s) {
                     var parentId = $(this).parents('.bus').attr('id');
                     
-                    return $.map(Array.from(new Array(8).keys()), n => option$('c', n, parentId, 'paint'));
+                    return $.map(Array.from(new Array(9).keys()), n => option$('c', n, parentId, 'paint'));
                 }).end();
 }
 
