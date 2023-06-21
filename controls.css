@@ -1,0 +1,122 @@
+#all-close {
+    position: absolute;
+    left: -999px;
+}
+#all-close + label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+     background: repeating-linear-gradient(
+      190deg,
+      rgba(255, 0, 0, 0.5) 40px,
+      rgba(255, 153, 0, 0.5) 80px,
+      rgba(255, 255, 0, 0.5) 120px,
+      rgba(0, 255, 0, 0.5) 160px,
+      rgba(0, 0, 255, 0.5) 200px,
+      rgba(75, 0, 130, 0.5) 240px,
+      rgba(238, 130, 238, 0.5) 280px,
+      rgba(255, 0, 0, 0.5) 300px
+    ), repeating-linear-gradient(
+      -190deg,
+      rgba(255, 0, 0, 0.5) 30px,
+      rgba(255, 153, 0, 0.5) 60px,
+      rgba(255, 255, 0, 0.5) 90px,
+      rgba(0, 255, 0, 0.5) 120px,
+      rgba(0, 0, 255, 0.5) 150px,
+      rgba(75, 0, 130, 0.5) 180px,
+      rgba(238, 130, 238, 0.5) 210px,
+      rgba(255, 0, 0, 0.5) 230px
+    ), repeating-linear-gradient(23deg, red 50px, orange 100px, yellow 150px, green
+        200px, blue 250px, indigo 300px, violet 350px, red 370px);
+}
+
+.menu-input { position: absolute; left: -9999px; }
+.menu {
+    display: inline-block;
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    margin: 5px;
+}
+.menu .bar {
+  width: 100%;
+  height: 20%;
+  background-color: #ccc;
+  margin: 20% 0;
+  transition: 0.4s;
+}
+.menu:hover .bar { background-color: #777; }
+.menu .bar:nth-child(1) { margin-top: 0; }
+.menu-input:checked + .menu .bar:nth-child(1) { transform: translate(0, 0.37em) rotate(-45deg); }
+.menu-input:checked + .menu .bar:nth-child(2) { opacity: 0; }
+.menu-input:checked + .menu .bar:nth-child(3) { transform: translate(0, -0.37em) rotate(45deg); }
+.menu-input + .menu ~ * { display: none; }
+.menu-input:checked + .menu ~ * { display: initial; animation: fadeIn 0.5s; }
+
+.settings {
+    position: fixed;
+    z-index: 3;
+    opacity: 0.8;
+    background-color: white;
+}
+
+.options {
+    display: inline-block;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    position: absolute;
+    margin-top: -20px;
+    background-color: white;
+    z-index: 1;
+    opacity: 0.8;
+}
+.options:has(.menu-input:checked) {
+    padding: 0 5px 5px 0;
+}
+.options .menu {
+    scale: 0.5;
+    margin: 0;
+}
+.insert,.delete {
+    text-decoration: none;
+    color: transparent;
+    min-width: 9px;
+    display: inline-block;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    line-height: 10px;
+    margin: 0 2px;
+}
+.insert:hover,.delete:hover {
+    background-color: white;
+}
+.insert:before,
+.insert:after,
+.delete:before {
+    background-color: green;
+    content: "";
+    width: 9px;
+    height: 2px;
+    display: inline-block;
+    position: absolute;
+    top: 6px;
+}
+.delete:before {
+    background-color: red;
+}
+.insert:after {
+    transform: rotate(90deg);
+    left: 4px;
+}
+.templates { display: none; }
+
+:checked.menu-input ~ .menu.close {
+    display: block;
+    position: absolute;
+    top: 0px;
+    z-index: 2;
+}

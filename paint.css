@@ -1,0 +1,89 @@
+.slot:has(:checked + .h) {
+    background:
+        linear-gradient(262deg, var(--bg) 4px, transparent 4px),
+        linear-gradient(298deg, var(--bg) 2px, transparent 3px);
+    background-size: 100% 42px;
+    background-repeat: no-repeat;
+}
+.slot:has(:checked + .f) ~ .slot:has(:checked + .h) {
+    background:
+        linear-gradient(98deg, var(--bg) 4px, transparent 4px),
+        linear-gradient(62deg, var(--bg) 2px, transparent 3px);
+    background-size: 100% 42px;
+    background-repeat: no-repeat;
+}
+.slot:has(:checked + .f) {
+    background:
+        linear-gradient(265deg, var(--bg) 4px, transparent 4px),
+        linear-gradient(95deg, var(--bg) 4px, transparent 4px),
+        linear-gradient(to right, var(--bg) 2px, transparent 2px),
+        linear-gradient(to left, var(--bg) 2px, transparent 2px),
+        linear-gradient(300deg, var(--bg) 4px, transparent 4px),
+        linear-gradient(60deg, var(--bg) 4px, transparent 4px);
+    background-size: 100% 42px;
+    background-repeat: no-repeat;
+}
+.slot:has(:checked + .r) {
+    background:
+        linear-gradient(267deg, var(--bg) 2px, transparent 2px),
+        linear-gradient(93deg, var(--bg) 2px, transparent 2px),
+        linear-gradient(300deg, var(--bg) 2px, transparent 2px),
+        linear-gradient(60deg, var(--bg) 2px, transparent 2px);
+    background-size: 100% 42px;
+    background-repeat: no-repeat;
+}
+.slot:has(:checked + .t) {
+    background:
+        linear-gradient(96deg, var(--bg) 2px, transparent 1px),
+        linear-gradient(43deg, var(--bg) 3px, transparent 3px);
+    background-size: 100% 42px;
+    background-repeat: no-repeat;
+}
+.slot:has(:checked + .f) ~ .slot:has(:checked + .t) {
+    background:
+        linear-gradient(262deg, var(--bg) 4px, transparent 4px),
+        linear-gradient(298deg, var(--bg) 2px, transparent 3px);
+    background-size: 100% 42px;
+    background-repeat: no-repeat;
+}
+.slot:has(:checked + .j) {
+    background:
+        linear-gradient(to bottom, var(--bg) 0px 3px, transparent 3px 41px, var(--bg) 41px);
+    background-size: 100% 47px;
+    background-repeat: no-repeat;
+}
+.bus {
+    background-size: calc(100% - 20px) 42px;
+    background-position: 10px 10px;
+    background-repeat: no-repeat;    
+}
+.c1,.bus:has(:checked + .c1) {
+    background-image: linear-gradient(to bottom, #E19000 52px, var(--bg) 52px);
+}
+.c2,.bus:has(:checked + .c2) {
+    background-image: linear-gradient(to bottom, white 10px 20px, #3B77B3 20px 32px, white 32px);
+}
+
+.c3,.bus:has(:checked + .c3) {
+    background-image: linear-gradient(to bottom, #e6d2b5 10px 31px, rgb(134,26,34) 31px);
+}
+
+.c4,.bus:has(:checked + .c4) {
+    background-image: linear-gradient(to bottom, blue 10px 31px, #e6d2b5 31px);
+}
+.c5,.bus:has(:checked + .c5) {
+    background-image: linear-gradient(to bottom, rgb(134,26,34) 10px 31px, #e6d2b5 31px);
+}
+.slot:has(:checked + .spot2) {
+    background-color: var(--bg);
+}
+
+.c {
+    min-height: 42px;
+    display: inline-block;
+    position: relative;
+    background-position: 0px 0px;
+    width: 10px;
+    background-size: 30px;
+    z-index: 1;
+}
