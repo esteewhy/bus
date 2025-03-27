@@ -1,14 +1,17 @@
+body { margin: 0; }
+
 #all-close {
     position: absolute;
     left: -999px;
 }
 #all-close + label {
-    position: absolute;
+    display: block;
     left: 0;
     right: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
+    bottom: 0;
+    position: fixed;
+    overflow: auto;
     z-index: 0;
      background: repeating-linear-gradient(
       190deg,
@@ -119,4 +122,15 @@
     position: absolute;
     top: 0px;
     z-index: 2;
+}
+
+.settings,
+#bus0 .options .menu ~ a.delete,
+#bus1 .options .menu ~ a.delete,
+#bus2 .options .menu ~ a.delete,
+#bus3 .options .menu ~ a.delete,
+#bus4 .options .menu ~ a.delete,
+#bus5 .options .menu ~ a.delete,
+#bus6 .options .menu ~ a.delete{
+    display: none;
 }
