@@ -69,6 +69,15 @@ function playground$(id) {
                 }).end();
 }
 
+function showBus(blueprint) {
+    var a = blueprint.replace(/(\d)([a-z])/ig, '$1 $2').split(' ');
+    
+    return ['BUS', a.reduce((acc, step) => {
+        
+    }, [])];
+}
+
+///TODO: increase number of slots when blueprint exceeds existing
 function inflateBus(board, blueprint) {
     var a = blueprint.replace(/(\d)([a-z])/ig, '$1 $2').split(' ');
     
@@ -123,13 +132,15 @@ function deflateBus(board) {
 }
 
 $(function() {
-    $(document).on('change', '.bus [type="radio"]', function() {
+    $(document).on('change', '.bus [type="radio"]:not(.close):not(.open)', function() {
         var board = $(this).parents('.bus');
         var k = board.get(0).id;
         var v = encodeURIComponent(deflateBus(board).replace(/\s/g, ''));
         var isGenBus = k.match(/^bus\d$/);
         $('.share', board).attr('href', '?' + (isGenBus ? 'add' : k) + '=' + v);
         $('.share', board).text(isGenBus ? 'copy' : 'share');
+        
+        window.location.hash = v;
         
         if(window.localStorage) {
             window.localStorage.setItem(k, v);
