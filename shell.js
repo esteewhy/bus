@@ -16,7 +16,7 @@ w0  | |0 |25| |  |sliderless
 w1  | |1 |25| |  |small sliders
 w2  | |2 |25| |  |large sliders
 w3  | |3 |16| |  |narrow
-w3  | |4 |14| |  |narrow sliderless
+w4  | |4 |14| |  |narrow sliderless
 w5  | |5 |16| |  |short, narrow
 w6  | |6 |7 | |  |tiny
 w7  | |7 |30| |  |wide sliderless (255.72)
@@ -44,8 +44,14 @@ d8  | |8 |16| |  |steyr (old 256)
 h   |6|  |7 | |  |head side view
 h0  | |0 |  | |  |steel bumper
 h1  | |1 |  | |  |plastic bumper (250.59)
+f   |7|  |  | |  |frontal view
+f0  | |0 |42| |  |2 headlamps
+f1  | |1 |42| |  |4 headlamps
+f2  | |2 |42| |  |plastic bumper (250.59)
+r   |8|  |  | |  |rearside view
+r0  | |0 |38| |  |engine underflor
+r1  | |1 |38| |  |rear engine
 `;
-
 
 function genRules() {
     return partList.split('\n')
@@ -57,19 +63,19 @@ function genRules() {
             console.log([id, x, y, w, h, mh, name]);
             const partType = id[0];
             const baseline = 'al'.indexOf(partType) >= 0 ? 'bottom' : 'top';
-            const selector = `.shadow:has(~ .picker :checked + .${id}) .${baseline},.${id}`;
-            const xexpr = `calc(var(--dx)${1 == x ? '' : ` * ${x}`} - 1px)`;
-            const yexpr = `calc(var(--dy)${1 == y ? '' : ` * ${y}`}${'bottom' === baseline ? ' - 29px' : ''})`;
+            const selector = `.shadow:has(~ .picker :checked + .${id}) .${baseline}, .${id}`;
+            const xexpr = '0' !== x ? `calc(var(--dx)${1 == x ? '' : ` * ${x}`} - 1px)` : x;
+            const yexpr =  '0' !== y ? `calc(var(--dy)${1 == y ? '' : ` * ${y}`}${'bottom' === baseline ? ' - 29px' : ''})` : 'bottom' === baseline ? '-29px' : y;
             const rules = [
                 x && y ? `background-position: ${xexpr} ${yexpr}`
                     : x > 0 ? `background-position-x: ${xexpr}`
-                        : y > 0 ? `background-position-y: ${yexpr}` : '',
+                        : y !== '' ? `background-position-y: ${yexpr}` : '',
                 w ? `width: ${w}px` : '',
-                mh ? `min-width: ${mh}px` : ''
+                mh ? `min-height: ${mh}px` : ''
             ].filter(r => r && r.trim() !== "");
             
-            return rules.length ? selector + ': ' + rules.join('; ') : '';
-        }).filter(v => v && '' !== v.trim()).join(';\n');
+            return rules.length ? selector + ' { ' + rules.join('; ') + '; }' : '';
+        }).filter(v => v && '' !== v.trim()).join('\n');
 }
 
 let _var = {

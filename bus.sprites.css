@@ -1,0 +1,49 @@
+.shadow:has(~ .picker :checked + .t0) .top, .t0 { background-position: 0 0; width: 7px; }
+.shadow:has(~ .picker :checked + .j0) .top, .j0 { background-position: calc(var(--dx) - 1px) 0; width: 20px; }
+.shadow:has(~ .picker :checked + .a) .bottom, .a { background-position-x: calc(var(--dx) * 2 - 1px); min-height: 17px; }
+.shadow:has(~ .picker :checked + .a0) .bottom, .a0 { background-position-y: -29px; width: 16px; }
+.shadow:has(~ .picker :checked + .a1) .bottom, .a1 { background-position-y: calc(var(--dy) - 29px); width: 17px; }
+.shadow:has(~ .picker :checked + .a2) .bottom, .a2 { background-position-y: calc(var(--dy) * 2 - 29px); width: 15px; }
+.shadow:has(~ .picker :checked + .a3) .bottom, .a3 { background-position-y: calc(var(--dy) * 3 - 29px); width: 16px; }
+.shadow:has(~ .picker :checked + .a4) .bottom, .a4 { background-position-y: calc(var(--dy) * 4 - 29px); width: 17px; }
+.shadow:has(~ .picker :checked + .a5) .bottom, .a5 { background-position-y: calc(var(--dy) * 5 - 29px); width: 15px; }
+.shadow:has(~ .picker :checked + .w) .top, .w { background-position-x: calc(var(--dx) * 3 - 1px); min-height: 21px; }
+.shadow:has(~ .picker :checked + .w0) .top, .w0 { background-position-y: 0; width: 25px; }
+.shadow:has(~ .picker :checked + .w1) .top, .w1 { background-position-y: calc(var(--dy)); width: 25px; }
+.shadow:has(~ .picker :checked + .w2) .top, .w2 { background-position-y: calc(var(--dy) * 2); width: 25px; }
+.shadow:has(~ .picker :checked + .w3) .top, .w3 { background-position-y: calc(var(--dy) * 3); width: 16px; }
+.shadow:has(~ .picker :checked + .w4) .top, .w4 { background-position-y: calc(var(--dy) * 4); width: 14px; }
+.shadow:has(~ .picker :checked + .w5) .top, .w5 { background-position-y: calc(var(--dy) * 5); width: 16px; }
+.shadow:has(~ .picker :checked + .w6) .top, .w6 { background-position-y: calc(var(--dy) * 6); width: 7px; }
+.shadow:has(~ .picker :checked + .w7) .top, .w7 { background-position-y: calc(var(--dy) * 7); width: 30px; }
+.shadow:has(~ .picker :checked + .w8) .top, .w8 { background-position-y: calc(var(--dy) * 8); width: 30px; }
+.shadow:has(~ .picker :checked + .l) .bottom, .l { background-position-x: calc(var(--dx) * 4 - 1px); min-height: 17px; }
+.shadow:has(~ .picker :checked + .l0) .bottom, .l0 { background-position-y: -29px; width: 20px; }
+.shadow:has(~ .picker :checked + .l1) .bottom, .l1 { background-position-y: calc(var(--dy) - 29px); width: 20px; }
+.shadow:has(~ .picker :checked + .l2) .bottom, .l2 { background-position-y: calc(var(--dy) * 2 - 29px); width: 20px; }
+.shadow:has(~ .picker :checked + .l3) .bottom, .l3 { background-position-y: calc(var(--dy) * 3 - 29px); width: 20px; }
+.shadow:has(~ .picker :checked + .l4) .bottom, .l4 { background-position-y: calc(var(--dy) * 4 - 29px); width: 13px; }
+.shadow:has(~ .picker :checked + .l5) .bottom, .l5 { background-position-y: calc(var(--dy) * 5 - 29px); width: 13px; }
+.shadow:has(~ .picker :checked + .l00) .bottom, .l00 { background-position-y: calc(var(--dy) * 9 - 29px); width: 39px; }
+.shadow:has(~ .picker :checked + .l000) .bottom, .l000 { background-position-y: calc(var(--dy) * 10 - 29px); width: 58px; }
+.shadow:has(~ .picker :checked + .l6) .bottom, .l6 { background-position-y: calc(var(--dy) * 11 - 29px); width: 39px; }
+.shadow:has(~ .picker :checked + .d) .top, .d { background-position-x: calc(var(--dx) * 5 - 1px); }
+.shadow:has(~ .picker :checked + .d0) .top, .d0 { background-position-y: 0; width: 16px; }
+.shadow:has(~ .picker :checked + .d1) .top, .d1 { background-position-y: calc(var(--dy)); width: 16px; }
+.shadow:has(~ .picker :checked + .d2) .top, .d2 { background-position-y: calc(var(--dy) * 2); width: 16px; }
+.shadow:has(~ .picker :checked + .d3) .top, .d3 { background-position-y: calc(var(--dy) * 3); width: 16px; }
+.shadow:has(~ .picker :checked + .d4) .top, .d4 { background-position-y: calc(var(--dy) * 4); width: 22px; }
+.shadow:has(~ .picker :checked + .d5) .top, .d5 { background-position-y: calc(var(--dy) * 5); width: 22px; }
+.shadow:has(~ .picker :checked + .d6) .top, .d6 { background-position-y: calc(var(--dy) * 6); width: 24px; }
+.shadow:has(~ .picker :checked + .d7) .top, .d7 { background-position-y: calc(var(--dy) * 7); width: 22px; }
+.shadow:has(~ .picker :checked + .d8) .top, .d8 { background-position-y: calc(var(--dy) * 8); width: 16px; }
+.shadow:has(~ .picker :checked + .h) .top, .h { background-position-x: calc(var(--dx) * 6 - 1px); width: 7px; }
+.shadow:has(~ .picker :checked + .h0) .top, .h0 { background-position-y: 0; }
+.shadow:has(~ .picker :checked + .h1) .top, .h1 { background-position-y: calc(var(--dy)); }
+.shadow:has(~ .picker :checked + .f) .top, .f { background-position-x: calc(var(--dx) * 7 - 1px); }
+.shadow:has(~ .picker :checked + .f0) .top, .f0 { background-position-y: 0; width: 42px; }
+.shadow:has(~ .picker :checked + .f1) .top, .f1 { background-position-y: calc(var(--dy)); width: 42px; }
+.shadow:has(~ .picker :checked + .f2) .top, .f2 { background-position-y: calc(var(--dy) * 2); width: 42px; }
+.shadow:has(~ .picker :checked + .r) .top, .r { background-position-x: calc(var(--dx) * 8 - 1px); }
+.shadow:has(~ .picker :checked + .r0) .top, .r0 { background-position-y: 0; width: 38px; }
+.shadow:has(~ .picker :checked + .r1) .top, .r1 { background-position-y: calc(var(--dy)); width: 38px; }
