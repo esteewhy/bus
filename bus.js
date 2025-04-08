@@ -142,6 +142,8 @@ $(function() {
         
         window.location.hash = v;
         
+        if(logBus) logBus(v);
+        
         if(window.localStorage) {
             window.localStorage.setItem(k, v);
         }
@@ -154,6 +156,16 @@ $(function() {
         return false;
     });
     
+    var prevBoard;
+    
+    $(document).on('change', '.bus [type="radio"]', function() {
+        var board = $(this).parents('.bus');
+        if(board.get(0) !== prevBoard) {
+            var v = deflateBus(board);
+            if(logBus) logBus(v);
+            prevBoard = board.get(0);
+        }
+    });
 });
 
 $(function() {

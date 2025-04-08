@@ -55,7 +55,7 @@
 .bus {
     background-size: calc(100% - 20px) 42px;
     background-position: 10px 10px;
-    background-repeat: no-repeat;    
+    background-repeat: no-repeat;
 }
 .c1,.bus:has(:checked + .c1) {
     background-image: linear-gradient(to bottom, #E19000 52px, var(--bg) 52px);
