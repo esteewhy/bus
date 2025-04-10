@@ -66,8 +66,13 @@ label { cursor: hand; }
 .blank { background-position: calc(var(--dx) * 7 - 1px) calc(var(--dy) * 4); width: 22px; }
 
 /*exceptions*/
-.shadow:has(~ .picker :checked + .a2) .bottom, .slot:has(.picker :checked + .f) ~ .slot .shadow:has(~ .picker :checked + .a5) .bottom { left: 0; }
+.shadow:has(~ .picker :checked + .a2) .bottom,
+.slot:has(.picker :checked + .f) ~ .slot .shadow:has(~ .picker :checked + .a5) .bottom { left: 0; }
 .slot:has(.picker :checked + .f) ~ .slot .shadow:has(~ .picker :checked + .a2) .bottom { right: 0; left: initial; }
+/*quirks*/
+.shadow:has(~ .picker :checked + .l00) .bottom,
+.shadow:has(~ .picker :checked + .l000) .bottom { right: 0; }
+.shadow:has(~ .picker :checked + .w6):has(~ .picker :checked + .a3) .bottom { margin-left: -12px; }
 
 .paint :checked + label,
 .picker :checked + label,
@@ -93,6 +98,11 @@ blink {
 @keyframes fadeIn {
      from { opacity: 0; }
      to { opacity: 0.8; }
+}
+
+.bus-view {
+    margin: 10px;
+    white-space: nowrap;
 }
 
 .bus {

@@ -8,6 +8,7 @@ body { margin: 0; }
     display: block;
     left: 0;
     right: 0;
+    font-size: 0;
     top: 0;
     bottom: 0;
     position: fixed;

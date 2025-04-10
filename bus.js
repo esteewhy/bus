@@ -4,7 +4,7 @@ function option$(typ, uid, groupName, cls, checked) {
     var id = groupName + val;
     return [
         $('<input/>', {'type': 'radio', value: val, id: id, checked: checked, name: name}),
-        $('<label/>', {'class': typ + ' ' + val, 'for': id, title: val }).html('&nbsp;')
+        $('<label/>', {'class': typ + ' ' + val, 'for': id, title: val + (SPEC?.hints?.[val] ? ' ' + SPEC.hints[val] : '') }).html('&nbsp;')
     ];
 }
 
@@ -53,9 +53,9 @@ function slot$(parentId, n) {
     );
 }
 
-function playground$(id) {
+function playground$(id, size = 20) {
     return $('<div class="bus" id="' + id + '" />')
-        .append($.map(Array.from(new Array(20).keys()), function(n) {
+        .append($.map(Array.from(new Array(size).keys()), function(n) {
             return slot$(id, n);
         }))
         .prepend($('.templates > .options').clone())
@@ -69,45 +69,52 @@ function playground$(id) {
                 }).end();
 }
 
-function showBus(blueprint) {
-    var a = blueprint.replace(/(\d)([a-z])/ig, '$1 $2').split(' ');
-    
-    return ['BUS', a.reduce((acc, step) => {
-        
-    }, [])];
-}
+function inflateBus(board, bus) {
+    const busElements = bus.match(/[a-z]\d+/ig) || [];
 
-///TODO: increase number of slots when blueprint exceeds existing
-function inflateBus(board, blueprint) {
-    var a = blueprint.replace(/(\d)([a-z])/ig, '$1 $2').split(' ');
-    
-    var cbnames = [];
-    $('.slot :input[name!=""]:not(.close):not(.open)', board).each(function() {
-        if (!~$.inArray(this.name, cbnames)) {
-            cbnames.push(this.name);
-            var prefix = a[0].substr(0, 1);
-            
-            var radio$ = $(':input[name="' + this.name + '"]', board);
-            var prefixes = [];
-            radio$.each(function() {
-                var p = $(this).val().substr(0, 1);
-                if(!~$.inArray(p, prefixes)) {
-                    prefixes.push(p);
+    const cbnames = [];
+    const inputs = board.get(0).querySelectorAll('.slot input:not(.close):not(.open)');
+
+    inputs.forEach(input => {
+        if (!cbnames.includes(input.name)) {
+            cbnames.push(input.name);
+            const prefix = busElements[0][0]; // Get the first character of the first element
+
+            const radios = board.get(0).querySelectorAll(`input[name="${input.name}"]`);
+            const prefixes = Array.from(radios).reduce((acc, radio) => {
+                const p = radio.value[0]; // Get the first character of the value
+                if (!acc.includes(p)) {
+                    acc.push(p);
                 }
-            });
-            
-            if(prefixes.includes(prefix)) {
-                radio$.val([a.shift()]);
-                if(0 == a.length) return false;
+                return acc;
+            }, []);
+
+            if (prefixes.includes(prefix)) {
+                radios.forEach(radio => {
+                    if (radio.value === busElements[0]) {
+                        radio.checked = true; // Set the value for radio buttons natively
+                    }
+                });
+                busElements.shift(); // Remove the used element
+                if (!busElements.length) return;
             }
         }
     });
     
-    if(a.length) {
-        var c = a.shift();
-        var name = $(':input[value="' + c + '"]', board).attr('name');
-        $(':input[name="' + name + '"]').val([c]);
+    const colorElement = busElements.find(element => element.startsWith('c'));
+    if (colorElement) {
+        const colorOption = board.get(0).querySelector(`input[value="${colorElement}"]`);
+        if (colorOption) {
+            const colorInput = board.get(0).querySelector(`input[name="${colorOption.name}"][value="${colorElement}"]`);
+            colorInput && (colorInput.checked = true);
+        }
     }
+}
+
+function showBusEditor(bus, id = new Date().getTime()) {
+    var anchor$ = $('#slots');
+    const matches = bus.match(/([dhfrtw])\d+/g) || [];
+    inflateBus($('#' + id).length ? $('#' + id) : playground$(id, matches.length).insertAfter(anchor$), bus);
 }
 
 function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
@@ -132,7 +139,7 @@ function deflateBus(board) {
 }
 
 $(function() {
-    $(document).on('change', '.bus [type="radio"]:not(.close):not(.open)', function() {
+    $(document).on('change', '.bus [type="radio"]:not(.close):not(.open):not(.menu-input)', function() {
         var board = $(this).parents('.bus');
         var k = board.get(0).id;
         var v = encodeURIComponent(deflateBus(board).replace(/\s/g, ''));
@@ -142,7 +149,7 @@ $(function() {
         
         window.location.hash = v;
         
-        if(logBus) logBus(v);
+        if(showBus) showBus(v);
         
         if(window.localStorage) {
             window.localStorage.setItem(k, v);
@@ -162,36 +169,41 @@ $(function() {
         var board = $(this).parents('.bus');
         if(board.get(0) !== prevBoard) {
             var v = deflateBus(board);
-            if(logBus) logBus(v);
+            if(showBus) showBus(v);
             prevBoard = board.get(0);
         }
     });
 });
 
+const genesys = {
+    'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
+    'bus1': 't0 w4 l4 d0 w7 a1 w7 w7 l000 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2',
+    'bus2': 't0 w4 l4 w4 w8 a1 w8 w8 l000 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3',
+    'bus3': 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4',
+    'bus4': 't0 w4 l4 d0 w8 a1 w8 w8 l000 w8 a4 d0 h0 c5',
+    'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
+    'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 w6 a3 d6 h0 c1'
+};
+
 $(function() {
-    const genesys = {
-        'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
-        'bus1': 't0 w4 l4 d0 w7 a1 w7 l000 w7 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2',
-        'bus2': 't0 w4 l4 w4 w8 a1 w8 l000 w8 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3',
-        'bus3': 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4',
-        'bus4': 't0 w4 l4 d0 w8 a1 w8 l000 w8 w8 a4 d0 h0 c5',
-        'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
-        'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 a3 w6 d6 h0 c1'
-    };
-    
     var urlParams = getUrlParams();
     window.history.pushState('object', document.title, location.href.split("?")[0]);
-    var anchor$ = $('#slots');
     var entries = Object.entries(Object.assign(localStorage, genesys, localStorage, urlParams)).filter(kvp => kvp[0].match(/^bus\d+$/i));
     
     if(!entries.length) entries = Object.entries(genesys);
     
     urlParams['add'] && entries.push(['bus' + new Date().getTime(), urlParams['add'][0]]);
+    var anchor$ = $('#slots');
     
+    const htmlVisitor = htmlVisitorFactory(html => $(`<a class='bus-view'>${html}</a>`)
+        .attr('href', '#' + encodeURIComponent($(html).text().replace(/\s+/g, '')))
+        .insertAfter(anchor$)
+    );
+
     entries.sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
         .forEach(kvp => {
-            var id = '#' + kvp[0];
-            inflateBus($(id).length ? $(id) : playground$(kvp[0]).insertAfter(anchor$), kvp[1]);
+            showBus(kvp[1], [htmlVisitor]);
+            showBusEditor(kvp[1], kvp[0]);
         });
 });
 

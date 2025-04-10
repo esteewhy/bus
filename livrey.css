@@ -1,3 +1,5 @@
+@import "bus.gradients.css";
+
 .slot:has(:checked + .h) {
     background:
         linear-gradient(262deg, var(--bg) 4px, transparent 4px),
@@ -57,30 +59,13 @@
     background-position: 10px 10px;
     background-repeat: no-repeat;
 }
-.c1,.bus:has(:checked + .c1) {
-    background-image: linear-gradient(to bottom, #E19000 52px, var(--bg) 52px);
-}
-.c2,.bus:has(:checked + .c2) {
-    background-image: linear-gradient(to bottom, white 10px 20px, #3B77B3 20px 32px, white 32px);
-}
+
+/*quirks*/
+/*doors in base color*/
 .bus:has(:checked + .c2) .shadow:has(~ .picker :checked + .d:is(.d7, .d4)) label {
     background-image: linear-gradient(to bottom, white 10px 42px, transparent 40px);
 }
-.c3,.bus:has(:checked + .c3) {
-    background-image: linear-gradient(to bottom, #e6d2b5 10px 31px, rgb(134,26,34) 31px);
-}
-.c4,.bus:has(:checked + .c4) {
-    background-image: linear-gradient(to bottom, blue 10px 31px, #e6d2b5 31px);
-}
-.c5,.bus:has(:checked + .c5) {
-    background-image: linear-gradient(to bottom, rgb(134,26,34) 10px 31px, #e6d2b5 31px);
-}
-.c6,.bus:has(:checked + .c6) {
-    background-image: linear-gradient(to bottom, #cc3300 10px 31px, #e6d2b5 31px);
-}
-.c7,.bus:has(:checked + .c7) {
-    background-image: linear-gradient(to bottom, white 10px 31px, #3B77B3 31px);
-}
+
 .bus:has(:checked + .c7) .shadow:has(~ .picker :checked + .d) label {
     background-image: linear-gradient(to bottom, transparent 10px 31px, white 31px 42px, transparent 40px);
 }
@@ -93,9 +78,6 @@
     background-image: linear-gradient(to bottom, transparent 10px 35px, white 35px 38px, transparent 38px);
     background-repeat: no-repeat;
     background-size: 4px;
-}
-.c8,.bus:has(:checked + .c8) {
-    background-image: linear-gradient(to bottom, #FCE10B 10px 31px, #F62803 31px);
 }
 .bus:has(:checked + .c8) .shadow:has(~ .picker :checked + .d) label {
     background-image: linear-gradient(to bottom, transparent 10px 31px, #FCE10B 31px 42px, transparent 40px);
