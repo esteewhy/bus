@@ -141,7 +141,7 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
         },
         get ["bus.gradients.css"]() {
             return cache['bus.gradients.css'] ??= LIVREYS.map(([id, {rules, note}]) =>`\
-.${id},.bus:has(:checked + .${id}) { background-image: linear-gradient(to bottom, ${rules}); } /* ${note} */`).join('\n');
+.${id},.bus:has(:checked + .${id}) .slot .shadow label { background-image: linear-gradient(to bottom, ${rules}); } /* ${note} */`).join('\n');
         },
         get livreys() {
             return cache['livreys'] ??= Object.fromEntries(
@@ -227,7 +227,7 @@ function defaultDelegate(target = document.body, position = 'afterend') {
 function htmlVisitorFactory(delegate = defaultDelegate()) {
     return function(slice, styles) {
         const html = slice
-            .map(([a], index) => `<span style="display:inline-block; ${styles[index]}">${a}</span>`)
+            .map(([a], index) => `<span class="${a[0]} ${a}" style="width: unset; display:inline-block; ${styles[index]}">${a}</span>`)
             .join(' ');
 
         delegate(html);

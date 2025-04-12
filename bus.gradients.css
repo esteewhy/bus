@@ -1,8 +1,8 @@
-.c1,.bus:has(:checked + .c1) { background-image: linear-gradient(to bottom, #E19000  0px 42px,   transparent 42px); } /* RAL 1006 */
-.c2,.bus:has(:checked + .c2) { background-image: linear-gradient(to bottom, white    10px 20px,  #3B77B3 20px 32px, white 32px 42px, transparent 42px); } /* DDR */
-.c3,.bus:has(:checked + .c3) { background-image: linear-gradient(to bottom, #e6d2b5  10px 30px,  rgb(134,26,34) 30px 42px, transparent 42px); } /* USSR 255 */
-.c4,.bus:has(:checked + .c4) { background-image: linear-gradient(to bottom, blue      30px,  #e6d2b5 30px 42px, transparent 42px); } /* dark blue */
-.c5,.bus:has(:checked + .c5) { background-image: linear-gradient(to bottom, rgb(134,26,34) 10px 30px, #e6d2b5 30px 42px, transparent 42px); } /* USSR 250 */
-.c6,.bus:has(:checked + .c6) { background-image: linear-gradient(to bottom, #cc3300  10px 30px,  #e6d2b5 30px 42px, transparent 42px); } /* 250.59 */
-.c7,.bus:has(:checked + .c7) { background-image: linear-gradient(to bottom, white    10px 30px,  #3B77B3 30px 42px, transparent 42px); } /* cyan bottom */
-.c8,.bus:has(:checked + .c8) { background-image: linear-gradient(to bottom, #FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px); } /* Warszawa */
+.c1,.bus:has(:checked + .c1) .slot .shadow label { background-image: linear-gradient(to bottom, #E19000  0px 42px,   transparent 42px); } /* RAL 1006 */
+.c2,.bus:has(:checked + .c2) .slot .shadow label { background-image: linear-gradient(to bottom, white    10px 20px,  #3B77B3 20px 32px, white 32px 42px, transparent 42px); } /* DDR */
+.c3,.bus:has(:checked + .c3) .slot .shadow label { background-image: linear-gradient(to bottom, #e6d2b5  10px 30px,  rgb(134,26,34) 30px 42px, transparent 42px); } /* USSR 255 */
+.c4,.bus:has(:checked + .c4) .slot .shadow label { background-image: linear-gradient(to bottom, blue      30px,  #e6d2b5 30px 42px, transparent 42px); } /* dark blue */
+.c5,.bus:has(:checked + .c5) .slot .shadow label { background-image: linear-gradient(to bottom, rgb(134,26,34) 10px 30px, #e6d2b5 30px 42px, transparent 42px); } /* USSR 250 */
+.c6,.bus:has(:checked + .c6) .slot .shadow label { background-image: linear-gradient(to bottom, #cc3300  10px 30px,  #e6d2b5 30px 42px, transparent 42px); } /* 250.59 */
+.c7,.bus:has(:checked + .c7) .slot .shadow label { background-image: linear-gradient(to bottom, white    10px 30px,  #3B77B3 30px 42px, transparent 42px); } /* cyan bottom */
+.c8,.bus:has(:checked + .c8) .slot .shadow label { background-image: linear-gradient(to bottom, #FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px); } /* Warszawa */

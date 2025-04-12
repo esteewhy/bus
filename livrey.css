@@ -1,63 +1,66 @@
 @import "bus.gradients.css";
 
-.slot:has(:checked + .h) {
-    background:
-        linear-gradient(262deg, var(--bg) 4px, transparent 4px),
-        linear-gradient(298deg, var(--bg) 2px, transparent 3px);
-    background-size: 100% 42px;
-    background-repeat: no-repeat;
+.h, .slot:has(:checked + .h) .shadow label {
+    clip-path: polygon(
+      0% 0%, 50% 0%,
+             90% 45%, 95% 45%,
+                      95% 70%,
+                          100% 70%,
+                          100% 80%,
+                      95% 80%,
+             50% 90%,
+      0% 90%, 0% 90%
+    );
 }
-.slot:has(:checked + .f) ~ .slot:has(:checked + .h) {
-    background:
-        linear-gradient(98deg, var(--bg) 4px, transparent 4px),
-        linear-gradient(62deg, var(--bg) 2px, transparent 3px);
-    background-size: 100% 42px;
-    background-repeat: no-repeat;
+.slot:has(:checked + .f) ~ .slot:has(:checked + .t) .shadow label,
+.slot:has(:checked + .f) ~ .slot:has(:checked + .h) .shadow label{
+    transform: scaleX(-1);
 }
-.slot:has(:checked + .f) {
-    background:
-        linear-gradient(265deg, var(--bg) 4px, transparent 4px),
-        linear-gradient(95deg, var(--bg) 4px, transparent 4px),
-        linear-gradient(to right, var(--bg) 2px, transparent 2px),
-        linear-gradient(to left, var(--bg) 2px, transparent 2px),
-        linear-gradient(300deg, var(--bg) 4px, transparent 4px),
-        linear-gradient(60deg, var(--bg) 4px, transparent 4px);
-    background-size: 100% 42px;
-    background-repeat: no-repeat;
+.f,.slot:has(:checked + .f) .shadow label {
+    clip-path: polygon(
+        94% 0%, 
+        6% 0%,  
+        4% 40%, 
+        4% 85%, 
+        9% 90%, 
+        91% 90%,
+        96% 85%,
+        96% 40% 
+    );
 }
-.slot:has(:checked + .r) {
-    background:
-        linear-gradient(267deg, var(--bg) 2px, transparent 2px),
-        linear-gradient(93deg, var(--bg) 2px, transparent 2px),
-        linear-gradient(300deg, var(--bg) 2px, transparent 2px),
-        linear-gradient(60deg, var(--bg) 2px, transparent 2px);
-    background-size: 100% 42px;
-    background-repeat: no-repeat;
+.r, .slot:has(:checked + .r) .shadow label {
+    clip-path: polygon(
+        98% 0%,  
+        2% 0%,   
+        0% 40%,  
+        0% 85%,  
+        5% 90%,  
+        95% 90%, 
+        100% 85%,
+        100% 40% 
+    );
 }
-.slot:has(:checked + .t) {
-    background:
-        linear-gradient(96deg, var(--bg) 2px, transparent 1px),
-        linear-gradient(43deg, var(--bg) 3px, transparent 3px);
-    background-size: 100% 42px;
-    background-repeat: no-repeat;
+.t, .slot:has(:checked + .t) .shadow label {
+    clip-path: polygon(
+      33% 0%, 100% 0%,
+              100% 90%,
+            50% 90%,
+        75% 90%,
+       5% 85%, 5% 80%,
+      0 80%, 0 70%,
+      5% 70%, 5% 40%
+    );
 }
-.slot:has(:checked + .f) ~ .slot:has(:checked + .t) {
-    background:
-        linear-gradient(262deg, var(--bg) 4px, transparent 4px),
-        linear-gradient(298deg, var(--bg) 2px, transparent 3px);
-    background-size: 100% 42px;
-    background-repeat: no-repeat;
-}
-.slot:has(:checked + .j) {
-    background:
-        linear-gradient(to bottom, var(--bg) 0px 3px, transparent 3px 41px, var(--bg) 41px);
-    background-size: 100% 47px;
-    background-repeat: no-repeat;
-}
-.bus {
-    background-size: calc(100% - 20px) 42px;
-    background-position: 10px 10px;
-    background-repeat: no-repeat;
+.j, .slot:has(:checked + .j) .shadow label {
+    clip-path: polygon(
+      0% 10%, 40% 10%,
+        40% 5%, 60% 5%,
+        60% 10%, 100% 10%,
+      100% 85%, 60% 85%,
+      60% 90%,
+        40% 90%, 40% 85%,
+      0 85%
+    );
 }
 
 /*quirks*/

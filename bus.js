@@ -55,7 +55,7 @@ function slot$(parentId, n) {
 
 function playground$(id, size = 20) {
     return $('<div class="bus" id="' + id + '" />')
-        .append($.map(Array.from(new Array(size).keys()), function(n) {
+        .append($.map(Array.from(new Array(size + 1).keys()), function(n) {
             return slot$(id, n);
         }))
         .prepend($('.templates > .options').clone())
@@ -140,6 +140,7 @@ function deflateBus(board) {
 
 $(function() {
     $(document).on('change', '.bus [type="radio"]:not(.close):not(.open):not(.menu-input)', function() {
+        
         var board = $(this).parents('.bus');
         var k = board.get(0).id;
         var v = encodeURIComponent(deflateBus(board).replace(/\s/g, ''));
