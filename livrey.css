@@ -13,8 +13,12 @@
     );
 }
 .slot:has(:checked + .f) ~ .slot:has(:checked + .t) .shadow label,
-.slot:has(:checked + .f) ~ .slot:has(:checked + .h) .shadow label{
+.slot:has(:checked + .f) ~ .slot:has(:checked + .h) .shadow label {
     transform: scaleX(-1);
+}
+.slot:has(:checked + .f) ~ .slot:has(:checked + .t) .shadow label .tile,
+.slot:has(:checked + .f) ~ .slot:has(:checked + .h) .shadow label .tile {
+    transform: none;
 }
 .f,.slot:has(:checked + .f) .shadow label {
     clip-path: polygon(
