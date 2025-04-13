@@ -1,4 +1,5 @@
 @import "bus.sprites.css";
+@import "bus.selection.css";
 
 :root {
     --dx: -42px;
@@ -36,47 +37,48 @@ label { cursor: hand; }
     white-space: nowrap;
     z-index: 998;
     border: 1px solid gray;
-    border-radius: 7px;
+    border-radius: 10px;
     padding: 1px;
     background-color: silver;
     opacity: 0.8;
     transition: background-color 0.5s;
+    margin-top: -7px;
+    transform-origin: top left;
+    transform: scale(0.75);
 }
 
-.picker input + .w  { min-height: 20px; }
-.picker input + .a,
-.picker input + .l { min-height: 17px; max-height: 17px; }
-.picker input + label:hover { background-color: white; }
-
-.picker :checked + label {
-    border: 1px solid red;
+.picker .conditional ~ label {
+    transform-origin: bottom left;
+    min-height: 17px; max-height: 17px;
+}
+.picker .w  { min-height: 20px; }
+.picker label:hover {
     background-color: white;
-    border-radius: 2px;
+    transform: scale(2);
 }
 
 .picker label { display: inline-block; margin: 1px; } 
 
 .picker .blank { min-height: 17px; max-height: 17px; width: 16px; }
-.shadow:has(~ .picker :checked + .a5) .bottom { right: 0; }
+:checked[value="a5"] ~ .shadow .bottom { right: 0; }
+:checked[value="f"] ~ :checked[value="l5"] ~ .shadow .bottom { right: 0; }
 
-.slot:has(.picker :checked + .f) ~ .slot .shadow:has(~ .picker :checked + .l5) .bottom { right: 0; }
-
-.shadow:has(~ .picker :checked + .spot2) .top,
+:checked[value="spot2"] ~ .shadow .top,
 .spot2 { background-position: calc(var(--dx) * 7 - 1px) calc(var(--dy) * 2); width: 6px; }
 .blank { background-position: calc(var(--dx) * 7 - 1px) calc(var(--dy) * 4); width: 22px; }
 
 /*exceptions*/
-.shadow:has(~ .picker :checked + .a2) .bottom,
-.slot:has(.picker :checked + .f) ~ .slot .shadow:has(~ .picker :checked + .a5) .bottom { left: 0; }
-.slot:has(.picker :checked + .f) ~ .slot .shadow:has(~ .picker :checked + .a2) .bottom { right: 0; left: initial; }
+:checked[value="a2"] ~ .shadow .bottom,
+.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a5"] ~ .shadow .bottom { left: 0; }
+.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a2"] ~ .shadow .bottom { right: 0; left: initial; }
 /*quirks*/
-.shadow:has(~ .picker :checked + .l00) .bottom,
-.shadow:has(~ .picker :checked + .l000) .bottom { right: 0; }
-.shadow:has(~ .picker :checked + .w6):has(~ .picker :checked + .a3) .bottom { margin-left: -12px; }
+:checked[value="l00"] ~ .shadow .bottom,
+:checked[value="l000"] ~ .shadow .bottom { right: 0; }
+:checked[value="w6"] ~ :checked[value="a3"] ~ .shadow .bottom { margin-left: -12px; }
 
 .paint :checked + label,
 .picker :checked + label,
-.shadow:has(~ .picker :checked + .spot2) .top,
+:checked[value="spot2"] ~ .shadow .top,
 .spot2,
 blink {
   animation: blink-animation 1s steps(5, start) infinite;
@@ -87,13 +89,13 @@ blink {
 
 .slot,
 .tile { display: inline-block; }
-.shadow:has(.close) { background-color: #faa; opacity: 0.8; }
+.open:checked ~ .shadow { background-color: #faa; opacity: 0.8; }
 .picker,
-.open:checked + label,
-.shadow:has(.close) label { display: none; }
+.open:checked ~ .shadow label[for$="open"],
+.shadow label[for$="close"] { display: none; }
 
-.shadow:has(.open:checked) ~ .picker { display: block; animation: fadeIn 0.5s; }
-.shadow:has(.open:checked) ~ .shadow:has(.close) label { display: inline-flex; animation: fadeIn 0.5s; }
+.open:checked ~ .picker { display: block; animation: fadeIn 0.5s; }
+.open:checked ~ .shadow label[for$="close"] { display: inline-flex; animation: fadeIn 0.5s; }
 
 @keyframes fadeIn {
      from { opacity: 0; }
@@ -119,13 +121,13 @@ blink {
     transform: perspective(3cm) rotateX(351deg) rotateY(333deg);
 }
 
-*:has(#port:not(:checked)) ~ .bus .slot:has(.picker :checked + .h) ~ .slot,
+*:has(#port:not(:checked)) ~ .bus .slot:has(:checked[value^="h"]) ~ .slot,
 *:has(#port:not(:checked)) ~ .bus .f,
 *:has(#port:not(:checked)) ~ .bus .r,
 .slot .f,
 .slot .r,
-.slot:has(:checked + .t) ~ .slot .t,
-.slot:has(:checked + .h) ~ .slot .h,
+.slot :checked[value^="t"] ~ .shadow .slot .t,
+.slot :checked[value^="h"] ~ .shadow .slot .h,
 .slot:has(:checked + :not(.f)) + .slot:has(:checked + .h) + .slot .picker input + :not(.f),
 .slot:has(:checked + .f) ~ .slot .f,
 .slot:has(:checked + .f) + .slot .picker input + :not(.h),
@@ -151,16 +153,16 @@ blink {
 
 .left .slot .tile,
 .left .slot .picker input + :not(.r),
-.slot:has(.picker :checked + .f) ~ .slot .tile,
-.slot:has(.picker :checked + .f) ~ .slot .picker input + :not(.r) {
+.slot :checked[value^="f"] ~ .shadow .slot .tile,
+.slot :checked[value^="f"] ~ .picker :not(.r) {
     transform: scaleX(-1);
 }
 
 .tile.bottom,
 .picker .conditional,
-.picker .conditional  ~ label { display: none; }
+.picker .conditional ~ label { display: none; }
 
 .shadow,
-.shadow:has(~ .picker .conditional ~ :checked):has(~ .picker :checked + .w) .bottom,
-.picker :checked + .w ~ .conditional,
-.picker :checked + .w ~ .conditional ~ label { display: inline-block; }
+:checked[value^="w"] ~ .conditional ~ :checked  ~ .shadow .tile.bottom,
+:checked[value^="w"] ~ .picker .conditional,
+:checked[value^="w"] ~ .picker .conditional ~ label { display: inline-block; }

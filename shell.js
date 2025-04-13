@@ -79,7 +79,7 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
     
     function _genSpritesCSS() {
         return SPRITES.map(([id, { x, y, w, h, baseline, note }]) => {
-            const selector = `.shadow:has(~ .picker :checked + .${id}) .${baseline}, .${id}`;
+            const selector = `:checked[value${1 < id.length ? '' : '^'}="${id}"] ~ .shadow .${baseline}, .${id}`;
             const xexpr = x !== '0' ? `calc(var(--dx)${x === 1 ? '' : ` * ${x}`} - 1px)` : x;
             const yexpr = y !== '0' 
                 ? `calc(var(--dy)${y === 1 ? '' : ` * ${y}`}${baseline === 'bottom' ? ' - 29px' : ''})` 
@@ -141,7 +141,7 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
         },
         get ["bus.gradients.css"]() {
             return cache['bus.gradients.css'] ??= LIVREYS.map(([id, {rules, note}]) =>`\
-.${id},.bus:has(:checked + .${id}) .slot .shadow label { background-image: linear-gradient(to bottom, ${rules}); } /* ${note} */`).join('\n');
+.${id},:checked[value="${id}"] ~ .slot .shadow label { background-image: linear-gradient(to bottom, ${rules}); } /* ${note} */`).join('\n');
         },
         get livreys() {
             return cache['livreys'] ??= Object.fromEntries(

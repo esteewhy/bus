@@ -1,6 +1,6 @@
 @import "bus.gradients.css";
 
-.h, .slot:has(:checked + .h) .shadow label {
+.h, .slot :checked[value^="h"] ~ .shadow label {
     clip-path: polygon(
       0% 0%, 50% 0%,
              90% 45%, 95% 45%,
@@ -12,15 +12,15 @@
       0% 90%, 0% 90%
     );
 }
-.slot:has(:checked + .f) ~ .slot:has(:checked + .t) .shadow label,
-.slot:has(:checked + .f) ~ .slot:has(:checked + .h) .shadow label {
+.slot :checked[value^="f"] ~ .slot :checked[value^="t"] ~ .shadow label,
+.slot :checked[value^="f"] ~ .slot :checked[value^="h"] ~ .shadow label {
     transform: scaleX(-1);
 }
-.slot:has(:checked + .f) ~ .slot:has(:checked + .t) .shadow label .tile,
-.slot:has(:checked + .f) ~ .slot:has(:checked + .h) .shadow label .tile {
+.slot :checked[value^="f"] ~ .slot :checked[value^="t"] ~ .shadow label .tile,
+.slot :checked[value^="f"] ~ .slot :checked[value^="h"] ~ .shadow label .tile {
     transform: none;
 }
-.f,.slot:has(:checked + .f) .shadow label {
+.f,.slot :checked[value^="f"] ~ .shadow label {
     clip-path: polygon(
         94% 0%, 
         6% 0%,  
@@ -32,7 +32,7 @@
         96% 40% 
     );
 }
-.r, .slot:has(:checked + .r) .shadow label {
+.r, .slot :checked[value^="r"] ~ .shadow label {
     clip-path: polygon(
         98% 0%,  
         2% 0%,   
@@ -44,7 +44,7 @@
         100% 40% 
     );
 }
-.t, .slot:has(:checked + .t) .shadow label {
+.t, .slot :checked[value^="t"] ~ .shadow label {
     clip-path: polygon(
       33% 0%, 100% 0%,
               100% 90%,
@@ -55,7 +55,7 @@
       5% 70%, 5% 40%
     );
 }
-.j, .slot:has(:checked + .j) .shadow label {
+.j, .slot :checked[value^="j"] ~ .shadow label {
     clip-path: polygon(
       0% 10%, 40% 10%,
         40% 5%, 60% 5%,
@@ -65,6 +65,10 @@
         40% 90%, 40% 85%,
       0 85%
     );
+}
+
+.picker .h,.j,.t {
+    clip-path: none;
 }
 
 /*quirks*/

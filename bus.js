@@ -1,60 +1,110 @@
 function option$(typ, uid, groupName, cls, checked) {
-    var val = typ + uid;
-    var name = groupName + cls;
-    var id = groupName + val;
-    return [
-        $('<input/>', {'type': 'radio', value: val, id: id, checked: checked, name: name}),
-        $('<label/>', {'class': typ + ' ' + val, 'for': id, title: val + (SPEC?.hints?.[val] ? ' ' + SPEC.hints[val] : '') }).html('&nbsp;')
-    ];
+    const val = typ + uid;
+    const [ name, id ] = [groupName + cls,  groupName + val];
+    return {
+        inputs: [$('<input/>', { type: 'radio', value: val, id, checked, name }) ],
+        labels: [$('<label/>', { class: typ + ' ' + val,  for: id, title: val + (SPEC?.hints?.[val] ? ' ' + SPEC.hints[val] : '')}).html('&nbsp;')]
+    };
 }
 
 function shadow$(parentId, action) {
-    var id = parentId + '-' + action;
-    return $('<div class="shadow" />').append(
-            $('<input/>', {'type': "radio", name: 'modal', id: id, 'class': action}),
-            $('<label/>', {'for': id}).append(
-                '<span class="tile top blank"/>',
-                '<span class="tile bottom blank"/>'
-            ),
-        );
+    const id = parentId + '-' + action;
+    return {
+        inputs: [$('<input/>', { type: 'radio', name: 'modal', id, class: action })],
+        labels: [$('<label/>', { for: id }).append('<span class="tile top blank"/>', '<span class="tile bottom blank"/>')]
+    };
+}
+
+function group$(num, typ, tgt, groupName) {
+    const inputs = [];
+    const labels = [];
+
+    $.map(Array.from(new Array(num).keys()), (n) => {
+        const option = option$(typ, n, groupName, tgt);
+        inputs.push(...option.inputs); // Gather inputs from option$
+        labels.push(...option.labels); // Gather labels from option$
+    });
+
+    return { inputs, labels };
 }
 
 function slot$(parentId, n) {
-    var groupName = parentId + 'slot' + n;
-    var _grp = function(num, typ, tgt) {
-        return $.map(Array.from(new Array(num).keys()), function(n) {
-            return option$(typ, n, groupName, tgt);
-        });
-    };
+    const groupName = parentId + 'slot' + n;
+
+    const _grp = (num, typ, tgt) => group$(num, typ, tgt, groupName);
+
+    // Aggregate inputs and labels separately
+    const inputs = [];
+    const labels = [];
+
+    function processGroup(group) {
+        inputs.push(...group.inputs); // Gather inputs from group$
+        labels.push(...group.labels); // Gather labels from group$
+    }
+
+    // Process specific options
+    processGroup({
+        inputs: [
+            ...option$('spot', 2, groupName, 'top', 'checked').inputs,
+            ...option$('t', 0, groupName, 'top').inputs,
+            ...option$('j', 0, groupName, 'top').inputs,
+        ],
+        labels: [
+            ...option$('spot', 2, groupName, 'top', 'checked').labels,
+            ...option$('t', 0, groupName, 'top').labels,
+            ...option$('j', 0, groupName, 'top').labels,
+        ]
+    });
+
+    // Process groups using _grp
+    processGroup(_grp(2, 'h', 'top'));
+    processGroup(_grp(3, 'f', 'top'));
+    processGroup(_grp(2, 'r', 'top'));
+    labels.push('<br/>');
+    // Process remaining groups
+    processGroup(_grp(9, 'd', 'top'));
+    labels.push('<br/>');
+    processGroup(_grp(9, 'w', 'top'));
+
+    inputs.push('<br class="conditional"/>');
+    labels.push('<br class="conditional"/>');
+
+    processGroup({
+        inputs: [...option$('blank', '0', groupName, 'bottom').inputs],
+        labels: [...option$('blank', '0', groupName, 'bottom').labels]
+    });
+
+    processGroup(_grp(6, 'a', 'bottom'));
+    labels.push('<br/>');
+    processGroup(_grp(6, 'l', 'bottom'));
+    processGroup(_grp(2, 'l', 'bottom'));
+    labels.push('<br/>');
     
+    processGroup({
+        inputs: [...option$('l', '00', groupName, 'bottom').inputs],
+        labels: [...option$('l', '00', groupName, 'bottom').labels]
+    });
+    processGroup({
+        inputs: [...option$('l', '000', groupName, 'bottom').inputs],
+        labels: [...option$('l', '000', groupName, 'bottom').labels]
+    });
+    // Process 'open' and 'close' shadow elements
+    const open = shadow$(groupName, 'open');
+    const close = shadow$(groupName, 'close');
+
     return $('<span class="slot" />').append(
-        shadow$(groupName, 'open'),
-        shadow$(groupName, 'close'),
-        $('<div/>', {'class': 'picker'}).append(
-            option$('spot', 2, groupName, 'top', 'checked'),
-            option$('t', 0, groupName, 'top'),
-            option$('j', 0, groupName, 'top'),
-            _grp(2, 'h', 'top'),
-            _grp(3, 'f', 'top'),
-            _grp(2, 'r', 'top'),
-            '<br/>',
-            _grp(9, 'd', 'top'),
-            '<br/>',
-            _grp(9, 'w', 'top'),
-            '<br class="conditional"/>',
-            option$('blank', '0', groupName, 'bottom'),
-            _grp(6, 'a', 'bottom'),
-            '<br/>',
-            _grp(6, 'l', 'bottom'),
-            '<br/>',
-            option$('l', '00', groupName, 'bottom'),
-            option$('l', '000', groupName, 'bottom')
-        )
+        inputs, // Gather all inputs, including <br class="conditional"/>, at the beginning
+        open.inputs, close.inputs, // Add inputs for open and close shadows
+        $('<span/>', { class: 'shadow' }).append(open.labels), // Wrap label.open in shadow span
+        $('<span/>', { class: 'shadow' }).append(close.labels), // Wrap label.close in shadow span
+        $('<div/>', { class: 'picker' }).append(labels) // Wrap remaining labels (with <br class="conditional"/> inside)
     );
 }
 
 function playground$(id, size = 20) {
+    const livreys = group$(9, 'c', id, 'paint');
     return $('<div class="bus" id="' + id + '" />')
+        .append(livreys.inputs)
         .append($.map(Array.from(new Array(size + 1).keys()), function(n) {
             return slot$(id, n);
         }))
@@ -62,11 +112,7 @@ function playground$(id, size = 20) {
             .find('.menu.open').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
             .find('.menu-input').attr('id', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
             .find('.paint')
-                .append(function(n, s) {
-                    var parentId = $(this).parents('.bus').attr('id');
-                    
-                    return $.map(Array.from(new Array(9).keys()), n => option$('c', n, parentId, 'paint'));
-                }).end();
+                .append(livreys.labels).end();
 }
 
 function inflateBus(board, bus) {
@@ -74,7 +120,7 @@ function inflateBus(board, bus) {
 
     const cbnames = [];
     const inputs = board.get(0).querySelectorAll('.slot input:not(.close):not(.open)');
-
+    
     inputs.forEach(input => {
         if (!cbnames.includes(input.name)) {
             cbnames.push(input.name);
@@ -135,7 +181,7 @@ function deflateBus(board) {
     return $.map(cbnames, function(name) {
         var v = $(':input[name="' + name + '"]:checked', board).val();
         return 'spot2' !== v ? v : null;
-    }).join(' ') + $('.paint :checked', board).val();
+    }).join(' ') + ' ' + $(':checked[value^="c"]', board).val();
 }
 
 $(function() {
