@@ -2,102 +2,72 @@ function option$(typ, uid, groupName, cls, checked) {
     const val = typ + uid;
     const [ name, id ] = [groupName + cls,  groupName + val];
     return {
-        inputs: [$('<input/>', { type: 'radio', value: val, id, checked, name }) ],
-        labels: [$('<label/>', { class: typ + ' ' + val,  for: id, title: val + (SPEC?.hints?.[val] ? ' ' + SPEC.hints[val] : '')}).html('&nbsp;')]
+        inputs: $('<input/>', { type: 'radio', value: val, id, checked, name }),
+        labels: $('<label/>', { class: typ + ' ' + val,  for: id, title: val + (SPEC?.hints?.[val] ? ' ' + SPEC.hints[val] : '')}).html('&nbsp;')
     };
 }
 
 function shadow$(parentId, action) {
     const id = parentId + '-' + action;
     return {
-        inputs: [$('<input/>', { type: 'radio', name: 'modal', id, class: action })],
-        labels: [$('<label/>', { for: id }).append('<span class="tile top blank"/>', '<span class="tile bottom blank"/>')]
+        inputs: $('<input/>', { type: 'radio', name: 'modal', id, class: action }),
+        labels: $('<label/>', { for: id }).append('<span class="tile top blank"/>', '<span class="tile bottom blank"/>')
     };
 }
 
+function unzip(array, keys = ['inputs', 'labels']) {
+    return array.reduce(
+        (acc, item) => {
+            keys.forEach(key => {
+                acc[key].push(...[].concat(item[key] ?? []));
+            });
+            return acc;
+        },
+        Object.fromEntries(keys.map(key => [key, []])) // Initial accumulator
+    );
+}
+
 function group$(num, typ, tgt, groupName) {
-    const inputs = [];
-    const labels = [];
-
-    $.map(Array.from(new Array(num).keys()), (n) => {
-        const option = option$(typ, n, groupName, tgt);
-        inputs.push(...option.inputs); // Gather inputs from option$
-        labels.push(...option.labels); // Gather labels from option$
-    });
-
-    return { inputs, labels };
+    const array = Array.from({ length: num }).map((_, n) => option$(typ, n, groupName, tgt));
+    return unzip(array);
 }
 
 function slot$(parentId, n) {
-    const groupName = parentId + 'slot' + n;
-
+    const groupName = `${parentId}slot${n}`;
     const _grp = (num, typ, tgt) => group$(num, typ, tgt, groupName);
 
-    // Aggregate inputs and labels separately
-    const inputs = [];
-    const labels = [];
+    const sources = [
+        option$('spot', 2, groupName, 'top', 'checked'),
+        option$('t', 0, groupName, 'top'),
+        option$('j', 0, groupName, 'top'),
+        _grp(2, 'h', 'top'),
+        _grp(3, 'f', 'top'),
+        _grp(2, 'r', 'top'),
+        { labels: '<br/>' },
+        _grp(9, 'd', 'top'),
+        { labels: '<br/>' },
+        _grp(9, 'w', 'top'),
+        { inputs: '<br class="conditional"/>', labels: '<br class="conditional"/>' },
+        option$('blank', '0', groupName, 'bottom'),
+        _grp(6, 'a', 'bottom'),
+        { labels: '<br/>' },
+        _grp(6, 'l', 'bottom'),
+        _grp(2, 'l', 'bottom'),
+        { labels: '<br/>' },
+        option$('l', '00', groupName, 'bottom'),
+        option$('l', '000', groupName, 'bottom')
+    ];
 
-    function processGroup(group) {
-        inputs.push(...group.inputs); // Gather inputs from group$
-        labels.push(...group.labels); // Gather labels from group$
-    }
+    const { inputs, labels } = unzip(sources);
 
-    // Process specific options
-    processGroup({
-        inputs: [
-            ...option$('spot', 2, groupName, 'top', 'checked').inputs,
-            ...option$('t', 0, groupName, 'top').inputs,
-            ...option$('j', 0, groupName, 'top').inputs,
-        ],
-        labels: [
-            ...option$('spot', 2, groupName, 'top', 'checked').labels,
-            ...option$('t', 0, groupName, 'top').labels,
-            ...option$('j', 0, groupName, 'top').labels,
-        ]
-    });
-
-    // Process groups using _grp
-    processGroup(_grp(2, 'h', 'top'));
-    processGroup(_grp(3, 'f', 'top'));
-    processGroup(_grp(2, 'r', 'top'));
-    labels.push('<br/>');
-    // Process remaining groups
-    processGroup(_grp(9, 'd', 'top'));
-    labels.push('<br/>');
-    processGroup(_grp(9, 'w', 'top'));
-
-    inputs.push('<br class="conditional"/>');
-    labels.push('<br class="conditional"/>');
-
-    processGroup({
-        inputs: [...option$('blank', '0', groupName, 'bottom').inputs],
-        labels: [...option$('blank', '0', groupName, 'bottom').labels]
-    });
-
-    processGroup(_grp(6, 'a', 'bottom'));
-    labels.push('<br/>');
-    processGroup(_grp(6, 'l', 'bottom'));
-    processGroup(_grp(2, 'l', 'bottom'));
-    labels.push('<br/>');
-    
-    processGroup({
-        inputs: [...option$('l', '00', groupName, 'bottom').inputs],
-        labels: [...option$('l', '00', groupName, 'bottom').labels]
-    });
-    processGroup({
-        inputs: [...option$('l', '000', groupName, 'bottom').inputs],
-        labels: [...option$('l', '000', groupName, 'bottom').labels]
-    });
-    // Process 'open' and 'close' shadow elements
-    const open = shadow$(groupName, 'open');
-    const close = shadow$(groupName, 'close');
+    const [open, close] = ['open', 'close'].map(action => shadow$(groupName, action));
 
     return $('<span class="slot" />').append(
-        inputs, // Gather all inputs, including <br class="conditional"/>, at the beginning
-        open.inputs, close.inputs, // Add inputs for open and close shadows
-        $('<span/>', { class: 'shadow' }).append(open.labels), // Wrap label.open in shadow span
-        $('<span/>', { class: 'shadow' }).append(close.labels), // Wrap label.close in shadow span
-        $('<div/>', { class: 'picker' }).append(labels) // Wrap remaining labels (with <br class="conditional"/> inside)
+        inputs,
+        open.inputs, close.inputs,
+        $('<span/>', { class: 'shadow' }).append(open.labels),
+        $('<span/>', { class: 'shadow' }).append(close.labels),
+        $('<div/>', { class: 'picker' }).append(labels)
     );
 }
 
