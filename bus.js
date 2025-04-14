@@ -85,46 +85,51 @@ function playground$(id, size = 20) {
                 .append(livreys.labels).end();
 }
 
-function inflateBus(board, bus) {
-    const busElements = bus.match(/[a-z]\d+/ig) || [];
-
+function inflateBus($board, bus) {
+    const board = $board.get(0);
+    const busElements = bus.match(/\w\d+/ig) || [];
     const cbnames = [];
-    const inputs = board.get(0).querySelectorAll('.slot input:not(.close):not(.open)');
+    const inputs = $('.slot > input:not(.close):not(.open)', board).get();
     
     inputs.forEach(input => {
         if (!cbnames.includes(input.name)) {
             cbnames.push(input.name);
-            const prefix = busElements[0][0]; // Get the first character of the first element
-
-            const radios = board.get(0).querySelectorAll(`input[name="${input.name}"]`);
-            const prefixes = Array.from(radios).reduce((acc, radio) => {
-                const p = radio.value[0]; // Get the first character of the value
-                if (!acc.includes(p)) {
-                    acc.push(p);
-                }
-                return acc;
-            }, []);
-
-            if (prefixes.includes(prefix)) {
-                radios.forEach(radio => {
-                    if (radio.value === busElements[0]) {
-                        radio.checked = true; // Set the value for radio buttons natively
+            
+            while(busElements.length) {
+                const busElement = busElements[0];
+                const prefix = busElement[0]; // Get the first character of the first element
+                
+                if('c' === prefix) {
+                    const colorOption = board.querySelector(`input[value="${busElement}"]`);
+                    if (colorOption) {
+                        const colorInput = board.querySelector(`input[name="${colorOption.name}"][value="${busElement}"]`);
+                        colorInput && (colorInput.checked = true);
                     }
-                });
-                busElements.shift(); // Remove the used element
-                if (!busElements.length) return;
+                    busElements.shift();
+                    continue;
+                }
+                
+                const radios = board.querySelectorAll(`input[name="${input.name}"]`);
+                const prefixes = Array.from(radios).reduce((acc, radio) => {
+                    const p = radio.value[0]; // Get the first character of the value
+                    if (!acc.includes(p)) {
+                        acc.push(p);
+                    }
+                    return acc;
+                }, []);
+                
+                if (prefixes.includes(prefix)) {
+                    radios.forEach(radio => {
+                        if (radio.value === busElement) {
+                            radio.checked = true;
+                        }
+                    });
+                    busElements.shift();
+                }
+                break;
             }
         }
     });
-    
-    const colorElement = busElements.find(element => element.startsWith('c'));
-    if (colorElement) {
-        const colorOption = board.get(0).querySelector(`input[value="${colorElement}"]`);
-        if (colorOption) {
-            const colorInput = board.get(0).querySelector(`input[name="${colorOption.name}"][value="${colorElement}"]`);
-            colorInput && (colorInput.checked = true);
-        }
-    }
 }
 
 function showBusEditor(bus, id = 'bus' + new Date().getTime()) {
@@ -145,9 +150,9 @@ function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
 }
 
 function deflateBus(board) {
-    Object.values(
+    return Object.values(
         Object.fromEntries(
-            new FormData(document.querySelector('#' + board.get(0).id))
+            new FormData(document.querySelector('#' + board.id))
         )
     ).join(' ').replace(' spot2', '');
 }
@@ -189,18 +194,17 @@ $(function() {
     */
     $(document).on('click', '.bus-view', function() {
         $('.bus').each((_, editor) => {
-            const $editor = $(editor);
-            const v = deflateBus($editor);
-            console.log("Finish editing:");
+            const v = deflateBus(editor);
+            console.log("Finish editing:", v);
             showBus ? showBus(v) : console.log(v);
+            const $editor = $(editor);
             $editor.replaceWith(showBusView(v, $editor.attr('id')));
         })
         const $viewer = $(this);
         const v = $viewer.text();
-        const id = $viewer.attr('id');
-        console.log("Begin editing:");
+        console.log("Begin editing:", v);
         showBus ? showBus(v) : console.log(v);
-        $viewer.replaceWith(showBusEditor(v, id));
+        $viewer.replaceWith(showBusEditor(v, $viewer.attr('id')));
     });
 });
 
