@@ -57,7 +57,7 @@ body { margin: 0; }
 .menu .bar:nth-child(1) { margin-top: 0; }
 .menu-input:checked + .menu .bar:nth-child(1) { transform: translate(0, 0.37em) rotate(-45deg); }
 .menu-input:checked + .menu .bar:nth-child(2) { opacity: 0; }
-.menu-input:checked + .menu .bar:nth-child(3) { transform: translate(0, -0.37em) rotate(45deg); }
+.menu-input:checked + .menu .bar:nth-child(3) { transform: translate(0, -0.37em) rotate(45deg); margin-top: -12px; }
 .menu-input + .menu ~ * { display: none; }
 .menu-input:checked + .menu ~ * { display: initial; animation: fadeIn 0.5s; }
 

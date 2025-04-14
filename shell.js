@@ -159,7 +159,7 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
 const groupped_rx = /([dhfrtw])(\d+)\s*(?:([acl])(\d+))?/g;
 const linear_rx = /(\w)(\d+)/g;
 
-const bus = showBus;
+const BUS = showBus;
 
 function showBus(bus = genesys['bus0'], visitors = [consoleVisitor]) {
     
@@ -199,8 +199,7 @@ function showBus(bus = genesys['bus0'], visitors = [consoleVisitor]) {
     });
 
     // Apply visitors for rendering
-    visitors.forEach(visitor => visitor(slice, styles));
-    return bus;
+    return visitors.map(visitor => visitor(slice, styles));
 }
 
 function consoleVisitor(slice, styles) {
@@ -210,26 +209,23 @@ function consoleVisitor(slice, styles) {
     );
 }
 
-function defaultDelegate(target = document.body, position = 'afterend') {
-    const resolvedTarget = typeof target === 'string'
-        ? document.querySelector(target) || (console.warn(`Element not found for selector: ${target}`), null)
-        : target;
-
+function defaultDelegateFactory() {
     return function(html) {
-        if (resolvedTarget) {
-            resolvedTarget.insertAdjacentHTML(position, `<div class='bus-view'>${html}</div>`);
-        } else {
-            console.warn('Cannot append HTML: target element not found.');
-        }
+        return `<div class='bus-view'>${html}</div>`;
     };
 }
 
-function htmlVisitorFactory(delegate = defaultDelegate()) {
+function htmlVisitorFactory(delegate = defaultDelegateFactory()) {
     return function(slice, styles) {
         const html = slice
             .map(([a], index) => `<span class="${a[0]} ${a}" style="width: unset; display:inline-block; ${styles[index]}">${a}</span>`)
             .join(' ');
 
-        delegate(html);
+        return delegate(html);
     };
 }
+
+const htmlVisitor = htmlVisitorFactory((html) =>
+    $(`<a class='bus-view'>${html}</a>`)
+        .attr('href', '#' + encodeURIComponent($(html).text().replace(/\s+/g, '')))
+);

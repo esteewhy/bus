@@ -11,7 +11,7 @@
 label { cursor: hand; }
 .tile,.picker label { background-image: url(tiles.png); min-width: 7px; min-height: 47px; }
 
-.bus input {
+.bus input, #port, #ddd {
     position: absolute;
     left: -9999px;
 }
@@ -103,8 +103,9 @@ blink {
 }
 
 .bus-view {
-    margin: 10px;
+    margin: 20px;
     white-space: nowrap;
+    display: inline-block;
 }
 
 .bus {
@@ -117,13 +118,13 @@ blink {
     background-color: rgba(0,0,0,25%);
 }
 
-*:has(#ddd:checked) ~ .bus {
+#ddd:checked ~ .bus {
     transform: perspective(3cm) rotateX(351deg) rotateY(333deg);
 }
 
-*:has(#port:not(:checked)) ~ .bus .slot:has(:checked[value^="h"]) ~ .slot,
-*:has(#port:not(:checked)) ~ .bus .f,
-*:has(#port:not(:checked)) ~ .bus .r,
+#port:not(:checked) ~ .bus .slot:has(:checked[value^="h"]) ~ .slot,
+#port:not(:checked) ~ .bus .f,
+#port:not(:checked) ~ .bus .r,
 .slot .f,
 .slot .r,
 .slot :checked[value^="t"] ~ .shadow .slot .t,

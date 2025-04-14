@@ -73,7 +73,7 @@ function slot$(parentId, n) {
 
 function playground$(id, size = 20) {
     const livreys = group$(9, 'c', id, 'paint');
-    return $('<div class="bus" id="' + id + '" />')
+    return $('<form class="bus" id="' + id + '" />')
         .append(livreys.inputs)
         .append($.map(Array.from(new Array(size + 1).keys()), function(n) {
             return slot$(id, n);
@@ -127,10 +127,15 @@ function inflateBus(board, bus) {
     }
 }
 
-function showBusEditor(bus, id = new Date().getTime()) {
-    var anchor$ = $('#slots');
+function showBusEditor(bus, id = 'bus' + new Date().getTime()) {
     const matches = bus.match(/([dhfrtw])\d+/g) || [];
-    inflateBus($('#' + id).length ? $('#' + id) : playground$(id, matches.length).insertAfter(anchor$), bus);
+    var $canvas = playground$(id, matches.length);
+    inflateBus($canvas, bus);
+    return $canvas;
+}
+
+function showBusView(bus, id = 'bus' + new Date().getTime()) {
+    return showBus(bus, [htmlVisitor])[0].attr({id});
 }
 
 function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
@@ -140,29 +145,20 @@ function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
 }
 
 function deflateBus(board) {
-    var cbnames = [];
-    
-    $('.slot :input[name!=""]:not(.close):not(.open)', board).each(function() {
-        if (!~$.inArray(this.name, cbnames)) {
-            cbnames.push(this.name);
-        }
-    });
-    
-    return $.map(cbnames, function(name) {
-        var v = $(':input[name="' + name + '"]:checked', board).val();
-        return 'spot2' !== v ? v : null;
-    }).join(' ') + ' ' + $(':checked[value^="c"]', board).val();
+    Object.values(
+        Object.fromEntries(
+            new FormData(document.querySelector('#' + board.get(0).id))
+        )
+    ).join(' ').replace(' spot2', '');
 }
 
 $(function() {
+    /*
     $(document).on('change', '.bus [type="radio"]:not(.close):not(.open):not(.menu-input)', function() {
         
         var board = $(this).parents('.bus');
         var k = board.get(0).id;
         var v = encodeURIComponent(deflateBus(board).replace(/\s/g, ''));
-        var isGenBus = k.match(/^bus\d$/);
-        $('.share', board).attr('href', '?' + (isGenBus ? 'add' : k) + '=' + v);
-        $('.share', board).text(isGenBus ? 'copy' : 'share');
         
         window.location.hash = v;
         
@@ -172,7 +168,7 @@ $(function() {
             window.localStorage.setItem(k, v);
         }
     }).trigger('change');
-    
+    */
     $(document).on('click', '.bus .options .delete', function() {
         confirm('Sure to scrape this vehicle?')
             && (localStorage.removeItem($(this).parents('.bus').attr('id'))
@@ -181,7 +177,7 @@ $(function() {
     });
     
     var prevBoard;
-    
+    /*
     $(document).on('change', '.bus [type="radio"]', function() {
         var board = $(this).parents('.bus');
         if(board.get(0) !== prevBoard) {
@@ -189,6 +185,22 @@ $(function() {
             if(showBus) showBus(v);
             prevBoard = board.get(0);
         }
+    });
+    */
+    $(document).on('click', '.bus-view', function() {
+        $('.bus').each((_, editor) => {
+            const $editor = $(editor);
+            const v = deflateBus($editor);
+            console.log("Finish editing:");
+            showBus ? showBus(v) : console.log(v);
+            $editor.replaceWith(showBusView(v, $editor.attr('id')));
+        })
+        const $viewer = $(this);
+        const v = $viewer.text();
+        const id = $viewer.attr('id');
+        console.log("Begin editing:");
+        showBus ? showBus(v) : console.log(v);
+        $viewer.replaceWith(showBusEditor(v, id));
     });
 });
 
@@ -210,18 +222,13 @@ $(function() {
     if(!entries.length) entries = Object.entries(genesys);
     
     urlParams['add'] && entries.push(['bus' + new Date().getTime(), urlParams['add'][0]]);
-    var anchor$ = $('#slots');
+    var $anchor = $('#slots');
     
-    const htmlVisitor = htmlVisitorFactory(html => $(`<a class='bus-view'>${html}</a>`)
-        .attr('href', '#' + encodeURIComponent($(html).text().replace(/\s+/g, '')))
-        .insertAfter(anchor$)
+    $anchor.replaceWith(
+        entries
+            .sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
+            .map(kvp => showBusView(kvp[1], kvp[0]))
     );
-
-    entries.sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
-        .forEach(kvp => {
-            showBus(kvp[1], [htmlVisitor]);
-            showBusEditor(kvp[1], kvp[0]);
-        });
 });
 
 $(function() {
