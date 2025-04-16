@@ -134,7 +134,7 @@ function inflateBus($board, bus) {
 
 function showBusEditor(bus, id = 'bus' + new Date().getTime()) {
     const matches = bus.match(/([dhfrtw])\d+/g) || [];
-    var $canvas = playground$(id, matches.length);
+    var $canvas = playground$(id, matches.length).data('initial-bus', bus);
     inflateBus($canvas, bus);
     return $canvas;
 }
@@ -157,23 +157,30 @@ function deflateBus(board) {
     ).join(' ').replace(' spot2', '');
 }
 
+/**
+ *
+ */
+function busesEqual(bus1, bus2) {
+    const normalize = (str) => {
+        return str.replace(/\s+|c\w+/g, '').trim();
+    };
+    return normalize(bus1) === normalize(bus2);
+}
+
 $(function() {
-    /*
-    $(document).on('change', '.bus [type="radio"]:not(.close):not(.open):not(.menu-input)', function() {
-        
-        var board = $(this).parents('.bus');
-        var k = board.get(0).id;
-        var v = encodeURIComponent(deflateBus(board).replace(/\s/g, ''));
-        
-        window.location.hash = v;
-        
-        if(showBus) showBus(v);
-        
-        if(window.localStorage) {
-            window.localStorage.setItem(k, v);
+    window.localStorage && $(document).on('change', '.bus [type="radio"]:not(.close):not(.open):not(.menu-input)', function() {
+        const $playground = $(this).parents('.bus');
+        const id = $playground.get(0).id;
+        const [oldBus, bus] = [$playground.data('initial-bus'), deflateBus($playground.get(0)).replace(/\s/g, '')];
+
+        if(!busesEqual(oldBus, bus)) {
+            window.location.hash = encodeURIComponent(bus);
+            console.log(`Saving ${id}:`);
+            if(showBus) showBus(bus);
+            window.localStorage.setItem(id, bus);
         }
     }).trigger('change');
-    */
+    
     $(document).on('click', '.bus .options .delete', function() {
         confirm('Sure to scrape this vehicle?')
             && (localStorage.removeItem($(this).parents('.bus').attr('id'))
@@ -221,18 +228,43 @@ const genesys = {
 $(function() {
     var urlParams = getUrlParams();
     window.history.pushState('object', document.title, location.href.split("?")[0]);
-    var entries = Object.entries(Object.assign(localStorage, genesys, localStorage, urlParams)).filter(kvp => kvp[0].match(/^bus\d+$/i));
     
-    if(!entries.length) entries = Object.entries(genesys);
+    var entries = Object.entries(
+        Object.assign({}, 
+            Object.fromEntries(
+                (localStorage['order'] ?? (localStorage['order'] = Object.keys(genesys).toString()))
+                    .split(',')
+                    .map(a => [a, undefined])
+            ),// Sort
+            Object.assign(
+                localStorage, // Save defaults if empty
+                genesys, // Defaults
+                localStorage,
+                urlParams
+            )
+        )
+    ).filter(kvp => kvp[0].match(/^bus\d+$/i) && kvp[1]);
+    
+    //if(!entries.length) entries = Object.entries(genesys);//don't remember why
     
     urlParams['add'] && entries.push(['bus' + new Date().getTime(), urlParams['add'][0]]);
-    var $anchor = $('#slots');
     
-    $anchor.replaceWith(
-        entries
-            .sort((a, b) => parseInt(b[0].match(/^bus(\d+)$/)[1]) - parseInt(a[0].match(/^bus(\d+)$/)[1]))
-            .map(kvp => showBusView(kvp[1], kvp[0]))
-    );
+    $('#slots').replaceWith(entries.map(kvp => showBusView(kvp[1], kvp[0])));
+    
+    $( "body > label" ).sortable({
+        items: '.bus,.bus-view',
+        opacity: 0.5,
+        revert: true,
+        update: function( event, ui ) {
+            /*
+            var buses = $('.bus,.bus-view', this).map((_, el) => {
+                var $el = $(el);
+                return [[ el.id, $el.is('.bus') ? deflateBus(el) : $el.is('.bus-view') ? $el.text() : '' ]];
+            }).get();
+            */
+            localStorage['order'] = $('.bus,.bus-view', this).map((_, el) => el.id).get().toString();
+        }
+    });
 });
 
 $(function() {
