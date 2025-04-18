@@ -156,25 +156,19 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
     }
 })();
 
-const groupped_rx = /([dhfrtw])(\d+)\s*(?:([acl])(\d+))?/g;
-const linear_rx = /(\w)(\d+)/g;
-
 const BUS = showBus;
 
+//const groupped_rx = /([dhfrtw])(\d+)\s*(?:([acl])(\d+))?/g;
+
 function showBus(bus = genesys['bus0'], visitors = [consoleVisitor]) {
+    const colorElement = bus.match(/c\d+/g)?.[0] ?? 'c1';
+    const slice = [
+        ...bus.split(/(?<=h\d+)/g)[0].match(/\w\d+/g).filter(part => !part.startsWith('c')),
+        colorElement
+    ];
     
-    // Step 1: Extract substring up to the first 'h'-leading element
-    const parts = bus.split(/(?<=h\d+)/g);
-    const baseSlice = [...parts[0].matchAll(linear_rx)];
-
-    // Step 2: Check for any 'c'-leading element in the remainder of the string
-    const additionalC = [...(parts.slice(1).join('').matchAll(/c\d+/g) || [])];
-
-    // Step 3: Combine the results
-    const slice = [...baseSlice, ...additionalC];
-    //const slice = [...bus.split(/(?<=h\d+)/g)[0].matchAll(linear_rx)]; // Convert iterator to array
-    const styles = slice.map(([, a, b], index) => {
-        const oldRules = (SPEC.sprites[a] || '') + SPEC.sprites[a + b];
+    const styles = slice.map((curr, index) => {
+        const oldRules = (SPEC.sprites[curr[0]] || '') + SPEC.sprites[curr];
         let newRules = oldRules.replaceAll('/*top*/', '');
         const isTopItem = oldRules !== newRules;
 
@@ -182,29 +176,26 @@ function showBus(bus = genesys['bus0'], visitors = [consoleVisitor]) {
             const prev = slice[index - 1];
             if (prev) {
                 const [prevWidth, currWidth] = [
-                    (SPEC.sprites[prev[0]].match(/padding-right:\s*(\d+)px/) || [])[1],
+                    (SPEC.sprites[prev]?.match(/padding-right:\s*(\d+)px/) || [])[1],
                     (newRules.match(/padding-left:\s*(\d+)px/) || [])[1]
                 ].map(Number);
-
                 const leftShift = Math.round(Math.max((prevWidth + currWidth) / 2, currWidth));
                 newRules += `margin-left: ${-leftShift}px; padding-left: ${leftShift}px;`;
             }
         }
         
-        const colorElement = bus.match(/c\d+/)?.[0]; // Safely extract the "c" value
         return SPEC.sprites._.replace(
             '/*livrey*/',
             isTopItem ? `, ${SPEC.livreys[colorElement]}` : ''
         ) + newRules;
     });
 
-    // Apply visitors for rendering
     return visitors.map(visitor => visitor(slice, styles));
 }
 
 function consoleVisitor(slice, styles) {
     console.log(
-        slice.map(([a]) => `%c${a}`).join(' '),
+        slice.map(a => `%c${a}`).join(' '),
         ...styles.map(rules => rules.replace(SPEC.imgType.file, SPEC.imgType.inline))
     );
 }
@@ -218,7 +209,11 @@ function defaultDelegateFactory() {
 function htmlVisitorFactory(delegate = defaultDelegateFactory()) {
     return function(slice, styles) {
         const html = slice
-            .map(([a], index) => `<span class="${a[0]} ${a}" style="width: unset; display:inline-block; ${styles[index]}">${a}</span>`)
+            .map((a, index) =>
+                'c' === a[0]
+                    ? a
+                    : `<span class="${a[0]} ${a}" style="width: unset; display:inline-block; ${styles[index]}">${a}</span>`
+            )
             .join(' ');
 
         return delegate(html);
@@ -226,6 +221,23 @@ function htmlVisitorFactory(delegate = defaultDelegateFactory()) {
 }
 
 const htmlVisitor = htmlVisitorFactory((html) =>
-    $(`<a class='bus-view'>${html}</a>`)
-        .attr('href', '#' + encodeURIComponent($(html).text().replace(/\s+/g, '')))
+    $("<a class='bus-view' />")
+        .html(html)
+        .attr('href', '#' + encodeURIComponent($(`<span>${html}</span>`).text().replace(/\s+/g, '')))
 );
+
+function parseAnnotations(docs) {
+    const graph = {};
+
+    docs.forEach(doc => {
+        const name = doc.match(/function (\w+)/)?.[1];
+        const depends = [...doc.matchAll(/@depends (\w+)/g)].map(match => match[1]);
+        const usedBy = [...doc.matchAll(/@usedBy (\w+)/g)].map(match => match[1]);
+
+        if (name) {
+            graph[name] = { depends, usedBy };
+        }
+    });
+
+    return graph;
+}

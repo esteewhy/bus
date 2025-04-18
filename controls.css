@@ -1,20 +1,5 @@
-body { margin: 0; }
-
-#all-close {
-    position: absolute;
-    left: -999px;
-}
-#all-close + label {
-    display: block;
-    left: 0;
-    right: 0;
-    font-size: 0;
-    top: 0;
-    bottom: 0;
-    position: fixed;
-    overflow: auto;
-    z-index: 0;
-     background: repeating-linear-gradient(
+body { margin: 0;
+background: repeating-linear-gradient(
       190deg,
       rgba(255, 0, 0, 0.5) 40px,
       rgba(255, 153, 0, 0.5) 80px,
@@ -34,8 +19,38 @@ body { margin: 0; }
       rgba(75, 0, 130, 0.5) 180px,
       rgba(238, 130, 238, 0.5) 210px,
       rgba(255, 0, 0, 0.5) 230px
-    ), repeating-linear-gradient(23deg, red 50px, orange 100px, yellow 150px, green
-        200px, blue 250px, indigo 300px, violet 350px, red 370px);
+    ), repeating-linear-gradient(
+        23deg,
+        red 50px,
+        orange 100px,
+        yellow 150px,
+        green 200px,
+        blue 250px,
+        indigo 300px,
+        violet 350px,
+        red 370px
+    );
+    height: 100%;
+    argin: 0;
+    padding: 0;
+}
+
+#all-close {
+    position: absolute;
+    left: -999px;
+}
+#all-close + label {
+    display: block;
+    left: 0;
+    right: 0;
+    font-size: 0;
+    top: 0;
+    bottom: 0;
+    position: fixed;
+    overflow: auto;
+    z-index: 0;
+     
+    //animation: gradient-move 300s linear infinite;
 }
 
 .menu-input { position: absolute; left: -9999px; }

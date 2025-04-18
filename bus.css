@@ -47,6 +47,10 @@ label { cursor: hand; }
     transform: scale(0.75);
 }
 
+.picker .spot, .picker .t, .picker .j, .picker .h, .picker .f, .picker .r {
+    transform-origin: top left;
+}
+
 .picker .conditional ~ label {
     transform-origin: bottom left;
     min-height: 17px; max-height: 17px;
@@ -106,6 +110,7 @@ blink {
     margin: 20px;
     white-space: nowrap;
     display: inline-block;
+    box-shadow: 0px 5px 5px rgba(128, 128, 128, 0.7);
 }
 
 .bus {
@@ -167,3 +172,16 @@ blink {
 :checked[value^="w"] ~ .conditional ~ :checked  ~ .shadow .tile.bottom,
 :checked[value^="w"] ~ .picker .conditional,
 :checked[value^="w"] ~ .picker .conditional ~ label { display: inline-block; }
+
+@media screen and (max-width: 600px) {
+  body > form > label {
+      display: flex!important;
+      flex-direction: column;
+  }
+  
+  .bus,.bus-view {
+    transform-origin:left top;
+    scale: 3;
+    margin: 9% 5rem;
+  }
+}
