@@ -338,21 +338,34 @@ $(function() {
     const selectedIndex = window.location.hash ? entries.findIndex(e => busIncludes(e[1], window.location.hash.slice(1))) : -1;
     $('#slots').replaceWith(entries.map((kvp, index) => (index === selectedIndex ? showBusEditor : showBusView)(kvp[1], kvp[0])));
     
+    window.addEventListener('hashchange', function() {
+        const $controls = $('.bus,.bus-view');
+        const entries = $controls.map((_, el) => {
+            const $el = $(el);
+            return [[ el.id, $el.is('.bus') ? deflateBus($el) : $el.is('.bus-view') ? $el.text() : '' ]];
+        }).get();
+            
+        const selectedIndex = window.location.hash ? entries.findIndex(e => busIncludes(e[1], window.location.hash.slice(1))) : -1;
+        $controls
+            .filter(`:eq(${selectedIndex}).bus-view`)
+            .trigger('click');
+    });
+    
     $( "body > label" ).sortable({
         items: '.bus,.bus-view',
         opacity: 0.5,
         revert: true,
         update: function( event, ui ) {
-            /*
-            var buses = $('.bus,.bus-view', this).map((_, el) => {
-                var $el = $(el);
-                return [[ el.id, $el.is('.bus') ? deflateBus(el) : $el.is('.bus-view') ? $el.text() : '' ]];
-            }).get();
-            */
             localStorage['order'] = $('.bus,.bus-view', this).map((_, el) => el.id).get().toString();
         }
     });
+    
+    if(0 > selectedIndex) {
+        confirm('Looks like a new bus. Add it to your garage?');
+        ///TODO
+    }
 });
+
 
 $(function() {
     var up = function(m, p1) { return "slot" + (parseInt(p1) + 1); };
