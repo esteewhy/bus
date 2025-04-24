@@ -60,7 +60,6 @@ function slot$(parentId, n) {
         _grp(6, 'a', 'bottom'),
         { labels: '<br/>' },
         _grp(6, 'l', 'bottom'),
-        _grp(2, 'l', 'bottom'),
         { labels: '<br/>' },
         option$('l', '00', groupName, 'bottom'),
         option$('l', '000', groupName, 'bottom')
@@ -273,6 +272,8 @@ $(function() {
         }
         
         $viewer.replaceWith($editor);
+        
+        $editor.get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     
     console.log(`WELLCOME to a legend of...`);
@@ -444,4 +445,34 @@ $(function() {
             return true;
         }
     );
+    
+    // Run the function on page load and whenever the viewport changes
+    //window.addEventListener('resize', adjustBusContainerScale);
+    //document.addEventListener('DOMContentLoaded', adjustBusContainerScale);
+    //adjustBusContainerScale();
 });
+
+
+function adjustBusContainerScale() {
+    const mediaQuery = window.matchMedia("(max-device-width: 915px) and (orientation: landscape)");
+    const busContainer = document.querySelector('.bus-container');
+    
+    if (busContainer && mediaQuery.matches) {
+        const containerHeight = window.innerHeight * 0.70;
+        const baseHeight = 58;
+        const scaleFactor = containerHeight / baseHeight;
+
+        busContainer.style.transform = `scale(${scaleFactor})`;
+
+        // Compute total width dynamically based on all buses
+        const totalBusWidth = [...document.querySelectorAll('.bus, .bus-view')]
+            .reduce((sum, el) => sum + el.getBoundingClientRect().width, 0);
+console.log('TBW', totalBusWidth);
+        busContainer.style.width = `${totalBusWidth}px`; // Ensure container fits all buses
+        busContainer.style.overflowX = "auto"; // Explicitly enable scrolling
+    } else {
+        busContainer.style.transform = "none";
+        busContainer.style.width = "auto"; // Reset width when condition no longer matches
+    }
+}
+

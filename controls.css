@@ -39,8 +39,8 @@ background: repeating-linear-gradient(
     position: absolute;
     left: -999px;
 }
-#all-close + label {
-    display: block;
+
+.bus-container {
     left: 0;
     right: 0;
     font-size: 0;
@@ -50,7 +50,42 @@ background: repeating-linear-gradient(
     overflow: auto;
     z-index: 0;
      
-    //animation: gradient-move 300s linear infinite;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+}
+
+@media only screen and (max-device-width: 460px) 
+                   and (orientation: portrait)
+{
+    .bus-container {
+        white-space: nowrap;
+        scroll-behavior: smooth;
+        transform-origin: top left;
+        justify-content: flex-start;
+        gap: 2vw; /* Dynamically adjusts spacing */
+        flex-direction: column;
+    }
+}
+
+@media only screen and (max-device-width: 915px) 
+                   and (orientation: landscape)
+{
+    .bus-container {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+        scroll-behavior: smooth;
+        transform-origin: top left;
+        justify-content: flex-start;
+        gap: 2vw; /* Dynamically adjusts spacing */
+    }
+    
+    .bus, .bus-view {
+        flex: 0 0 auto; /* Prevents shrinkage */
+    }
 }
 
 .menu-input { position: absolute; left: -9999px; }

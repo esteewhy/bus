@@ -62,23 +62,7 @@ label { cursor: hand; }
 }
 
 .picker label { display: inline-block; margin: 1px; } 
-
 .picker .blank { min-height: 17px; max-height: 17px; width: 16px; }
-:checked[value="a5"] ~ .shadow .bottom { right: 0; }
-:checked[value="f"] ~ :checked[value="l5"] ~ .shadow .bottom { right: 0; }
-
-:checked[value="spot2"] ~ .shadow .top,
-.spot2 { background-position: calc(var(--dx) * 7 - 1px) calc(var(--dy) * 2); width: 6px; }
-.blank { background-position: calc(var(--dx) * 7 - 1px) calc(var(--dy) * 4); width: 22px; }
-
-/*exceptions*/
-:checked[value="a2"] ~ .shadow .bottom,
-.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a5"] ~ .shadow .bottom { left: 0; }
-.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a2"] ~ .shadow .bottom { right: 0; left: initial; }
-/*quirks*/
-:checked[value="l00"] ~ .shadow .bottom,
-:checked[value="l000"] ~ .shadow .bottom { right: 0; }
-:checked[value="w6"] ~ :checked[value="a3"] ~ .shadow .bottom { margin-left: -12px; }
 
 .paint :checked + label,
 .picker :checked + label,
@@ -91,8 +75,6 @@ blink {
 @keyframes blink-animation { to { opacity: 0.2; } }
 @-webkit-keyframes blink-animation { to { opacity: 0.2; } }
 
-.slot,
-.tile { display: inline-block; }
 .open:checked ~ .shadow { background-color: #faa; opacity: 0.8; }
 .picker,
 .open:checked ~ .shadow label[for$="open"],
@@ -100,22 +82,32 @@ blink {
 
 .open:checked ~ .picker { display: block; animation: fadeIn 0.5s; }
 .open:checked ~ .shadow label[for$="close"] { display: inline-flex; animation: fadeIn 0.5s; }
-
 @keyframes fadeIn {
      from { opacity: 0; }
      to { opacity: 0.8; }
 }
 
-.bus-view {
-    margin: 20px;
-    white-space: nowrap;
-    display: inline-block;
-    box-shadow: 0px 5px 5px rgba(128, 128, 128, 0.7);
-}
+.slot,
+.tile { display: inline-block; }
 
+:checked[value="spot2"] ~ .shadow .top,
+.spot2 { background-position: calc(var(--dx) * 7 - 1px) calc(var(--dy) * 2); width: 6px; }
+.blank { background-position: calc(var(--dx) * 7 - 1px) calc(var(--dy) * 4); width: 22px; }
+
+/*exceptions and quircks */
+:checked[value="a2"] ~ .shadow .bottom,/* Left-align axle */
+.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a5"] ~ .shadow .bottom { left: 0; }
+.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a2"] ~ .shadow .bottom { right: 0; left: initial; }/* Right-align axle in mirror view */
+:checked[value="a5"] ~ .shadow .bottom { right: 0; } /* Right-align axle in left side view */
+:checked[value="f"] ~ :checked[value="l5"] ~ .shadow .bottom { right: 0; } /* Right-align hatch in mirror view */
+:checked[value="l00"] ~ .shadow .bottom,
+:checked[value="l000"] ~ .shadow .bottom { right: 0; }
+:checked[value="w6"] ~ :checked[value="a3"] ~ .shadow .bottom { margin-left: -12px; }
+
+/* Form-based editor */
 .bus {
     display: inline-block;
-    margin: 10px;
+    margin: 1%;
     border: 1px solid #eee;
     padding: 10px 10px 5px;
     border-radius: 10px;
@@ -123,13 +115,19 @@ blink {
     background-color: rgba(0,0,0,25%);
 }
 
-#ddd:checked ~ .bus {
-    transform: perspective(3cm) rotateX(351deg) rotateY(333deg);
+/* Linear viewer */
+.bus-view {
+    margin: 20px;
+    white-space: nowrap;
+    display: inline-block;
+    box-shadow: 0px 5px 5px rgba(128, 128, 128, 0.7);
 }
 
-#port:not(:checked) ~ .bus .slot:has(:checked[value^="h"]) ~ .slot,
-#port:not(:checked) ~ .bus .f,
-#port:not(:checked) ~ .bus .r,
+#ddd:checked ~ .bus { transform: perspective(3cm) rotateX(351deg) rotateY(333deg); } /* Lock 3D view */
+
+#port:not(:checked) ~ .bus .slot:has(:checked[value^="h"]) ~ .slot, /* Hide everything beyond left side view */
+#port:not(:checked) ~ .bus .f, /* Hide front part(s) from picker */
+#port:not(:checked) ~ .bus .r, /* Hide rear part(s) from picker */
 .slot .f,
 .slot .r,
 .slot :checked[value^="t"] ~ .shadow .slot .t,
@@ -152,11 +150,13 @@ blink {
     display: inline-block;
 }
 
+/* Allow only one front and rear view slot */
 .slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot .f,
 .slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot:has(:checked + .t) + .slot .picker input + :not(.r) {
     display: none;
 }
 
+/* Mirror right side */
 .left .slot .tile,
 .left .slot .picker input + :not(.r),
 .slot :checked[value^="f"] ~ .shadow .slot .tile,
@@ -164,24 +164,13 @@ blink {
     transform: scaleX(-1);
 }
 
+/* Hide bottom parts from picker by default */
 .tile.bottom,
 .picker .conditional,
 .picker .conditional ~ label { display: none; }
 
+/* Show bottom parts after top parts wehich allow it */
 .shadow,
 :checked[value^="w"] ~ .conditional ~ :checked  ~ .shadow .tile.bottom,
 :checked[value^="w"] ~ .picker .conditional,
 :checked[value^="w"] ~ .picker .conditional ~ label { display: inline-block; }
-
-@media screen and (max-width: 600px) {
-  body > form > label {
-      display: flex!important;
-      flex-direction: column;
-  }
-  
-  .bus,.bus-view {
-    transform-origin:left top;
-    scale: 3;
-    margin: 9% 5rem;
-  }
-}
