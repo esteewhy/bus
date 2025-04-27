@@ -55,6 +55,8 @@ background: repeating-linear-gradient(
     flex-wrap: wrap;
     align-items: flex-start;
     align-content: flex-start;
+    transform-origin: top left;
+    justify-content: flex-start;
 }
 
 @media only screen and (max-device-width: 460px) 
@@ -63,10 +65,15 @@ background: repeating-linear-gradient(
     .bus-container {
         white-space: nowrap;
         scroll-behavior: smooth;
-        transform-origin: top left;
-        justify-content: flex-start;
         gap: 2vw; /* Dynamically adjusts spacing */
         flex-direction: column;
+    }
+    
+    .bus { z-index: 997; }
+    .bus-view { z-index: 996; }
+    .picker {
+        width: 97vw;
+        left: 0;
     }
 }
 
@@ -77,14 +84,30 @@ background: repeating-linear-gradient(
         flex-wrap: nowrap;
         overflow-x: auto;
         white-space: nowrap;
+        align-items: center;
         scroll-behavior: smooth;
-        transform-origin: top left;
-        justify-content: flex-start;
         gap: 2vw; /* Dynamically adjusts spacing */
     }
     
     .bus, .bus-view {
         flex: 0 0 auto; /* Prevents shrinkage */
+    }
+    
+    .bus { z-index: 997; }
+    .bus-view { z-index: 996; }
+    
+    .picker {
+        top: 0;
+        margin-left: 3vh;
+        /* height: 43vh; */
+        /* width: 44vh; */
+        overflow: auto;
+        border-radius: 0;
+        /* transform: scale(1) !important; */
+        /* position: absolute; */
+        transform: unset;
+        /* position: fixed; */
+        margin-top: -29%;
     }
 }
 

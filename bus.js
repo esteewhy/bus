@@ -272,6 +272,7 @@ $(function() {
         }
         
         $viewer.replaceWith($editor);
+        adjustBusScale();
         
         $editor.get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -361,7 +362,7 @@ $(function() {
         }
     });
     
-    if(0 > selectedIndex) {
+    if(window.location.hash && 0 > selectedIndex) {
         confirm('Looks like a new bus. Add it to your garage?');
         ///TODO
     }
@@ -431,7 +432,10 @@ $(function() {
                 const $editor = $(editor);
                 const v = deflateBus($editor);
                 $editor.replaceWith(showBusView(v, $editor.attr('id')));
+                adjustBusScale();
             });
+            adjustBusScale();
+            history.replaceState(null, null, ' ');
         }
     )
     
@@ -447,32 +451,53 @@ $(function() {
     );
     
     // Run the function on page load and whenever the viewport changes
-    //window.addEventListener('resize', adjustBusContainerScale);
-    //document.addEventListener('DOMContentLoaded', adjustBusContainerScale);
-    //adjustBusContainerScale();
+    window.addEventListener('resize', adjustBusScale);
+    window.addEventListener('orientationchange', adjustBusScale);
+    document.addEventListener('DOMContentLoaded', adjustBusScale);
+    adjustBusScale();
 });
 
-
-function adjustBusContainerScale() {
-    const mediaQuery = window.matchMedia("(max-device-width: 915px) and (orientation: landscape)");
+function adjustBusScale() {
+    const landscape = window.matchMedia("(max-device-width: 915px) and (orientation: landscape)").matches;
+    const portrait = window.matchMedia("(max-device-width: 460px) and (orientation: portrait)").matches;
+    const buses = document.querySelectorAll('.bus, .bus-view');
     const busContainer = document.querySelector('.bus-container');
-    
-    if (busContainer && mediaQuery.matches) {
-        const containerHeight = window.innerHeight * 0.70;
-        const baseHeight = 58;
-        const scaleFactor = containerHeight / baseHeight;
 
-        busContainer.style.transform = `scale(${scaleFactor})`;
+    if (!busContainer) return;
 
-        // Compute total width dynamically based on all buses
-        const totalBusWidth = [...document.querySelectorAll('.bus, .bus-view')]
-            .reduce((sum, el) => sum + el.getBoundingClientRect().width, 0);
-console.log('TBW', totalBusWidth);
-        busContainer.style.width = `${totalBusWidth}px`; // Ensure container fits all buses
-        busContainer.style.overflowX = "auto"; // Explicitly enable scrolling
+    buses.forEach(bus => {
+        bus.style.transform = "none";
+        bus.style.width = "unset";
+    });
+    busContainer.style.gap = "unset";
+
+    if (landscape) {
+        const maxHeight = Math.max(...[...buses].map(bus => bus.getBoundingClientRect().height + 40));
+        const maxWidth = Math.max(...[...buses].map(bus => bus.getBoundingClientRect().width + 40));
+        const scaleFactor = Math.min(busContainer.clientHeight / maxHeight, busContainer.clientWidth / maxWidth);
+
+        buses.forEach(bus => {
+            bus.style.marginRight = `${bus.getBoundingClientRect().width / 2}vh`;
+            bus.style.transform = `scale(${scaleFactor})`;
+            bus.style.transformOrigin = "top left";
+        });
+
+        busContainer.style.gap = `${2 * scaleFactor}vh`;
+    } else if (portrait) {
+        const maxWidth = Math.max(...[...buses].map(bus => bus.getBoundingClientRect().width)) + 40;
+        const scaleFactorX = busContainer.clientWidth / maxWidth;
+
+        buses.forEach(bus => {
+            bus.style.transform = `scale(${scaleFactorX})`;
+            bus.style.transformOrigin = "top left";
+            bus.style.marginRight = "0"
+        });
+        busContainer.style.gap = `${2 * scaleFactorX}vh`;
     } else {
-        busContainer.style.transform = "none";
-        busContainer.style.width = "auto"; // Reset width when condition no longer matches
+        buses.forEach(bus => {
+            bus.style.transform = "none";
+            bus.style.marginRight = "2vh";
+            bus.style.marginBottom = "2vw";
+        });
     }
 }
-
