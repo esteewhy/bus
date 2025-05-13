@@ -49,7 +49,6 @@ background: repeating-linear-gradient(
     position: fixed;
     overflow: auto;
     z-index: 0;
-     
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -59,7 +58,11 @@ background: repeating-linear-gradient(
     justify-content: flex-start;
 }
 
-@media only screen and (max-device-width: 460px) 
+.bus { z-index: 997; }
+.bus-view { z-index: 996; transition: transform 0.5s ease-in-out; }
+.bus-view:hover { transform: scale(1.1); }
+
+@media only screen and (max-device-width: 412px) 
                    and (orientation: portrait)
 {
     .bus-container {
@@ -67,10 +70,16 @@ background: repeating-linear-gradient(
         scroll-behavior: smooth;
         gap: 2vw; /* Dynamically adjusts spacing */
         flex-direction: column;
+        flex-wrap: nowrap;
     }
     
-    .bus { z-index: 997; }
-    .bus-view { z-index: 996; }
+    .bus-view, .bus {
+        transform: scale(1.32051);
+        width: unset;
+        margin-right: 0px;
+        margin-bottom: 2vw;
+        transform-origin: left top;
+    }
     .picker {
         width: 97vw;
         left: 0;
@@ -80,6 +89,13 @@ background: repeating-linear-gradient(
 @media only screen and (max-device-width: 915px) 
                    and (orientation: landscape)
 {
+    form {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow-y: hidden;
+    }
+    
     .bus-container {
         flex-wrap: nowrap;
         overflow-x: auto;
@@ -87,27 +103,27 @@ background: repeating-linear-gradient(
         align-items: center;
         scroll-behavior: smooth;
         gap: 2vw; /* Dynamically adjusts spacing */
+        transform: scale(5);
+        transform-origin: left center;
+        position: unset;
+        height: 100%;
     }
     
     .bus, .bus-view {
         flex: 0 0 auto; /* Prevents shrinkage */
     }
     
-    .bus { z-index: 997; }
-    .bus-view { z-index: 996; }
-    
     .picker {
-        top: 0;
+        top: 172px;
         margin-left: 3vh;
-        /* height: 43vh; */
-        /* width: 44vh; */
         overflow: auto;
         border-radius: 0;
-        /* transform: scale(1) !important; */
-        /* position: absolute; */
-        transform: unset;
-        /* position: fixed; */
-        margin-top: -29%;
+        transform: scale(0.416) !important;
+    }
+    
+    .bus input, #port, #ddd {
+        left: initial;
+        top: -9999px;
     }
 }
 

@@ -194,9 +194,10 @@ function deflateBus($board) {
  * @usedBy On starting editing upon clicking on view.
  */
 function showBusEditor(bus, id = 'bus' + new Date().getTime()) {
-    const matches = bus.match(/([dhfrtw])\d+/g) || [];
+    const matches = bus.match(/([dhfjrtw])\d+/g) || [];
     var $canvas = playground$(id, matches.length).data('initial-bus', bus);
     inflateBus($canvas, bus);
+    //$('.slot', $canvas).wrapAll('<div class="left"/>');
     return $canvas;
 }
 
@@ -212,7 +213,8 @@ function showBusEditor(bus, id = 'bus' + new Date().getTime()) {
  * @usedBy On starting editing upon clicking on view.
  */
 function showBusView(bus, id = 'bus' + new Date().getTime()) {
-    return showBus(bus, [htmlVisitor])[0].attr({id});
+    const htmlVisitor = htmlVisitorOutlineFactory(/r\d+/.test(bus) ? fullRenderer : flatRenderer);
+    return showBus(bus, [htmlVisitor], id)[0].attr({id});
 }
 
 function normalizeBus(bus) {
@@ -236,7 +238,7 @@ function busIncludes(bigBus, smallBus) {
 $(function() {
     window.localStorage && $(document).on('change', '.bus [type="radio"]:not(.close):not(.open):not(.menu-input)',
         /**
-         * Reacts on input which changes bust string and saves bus.
+         * Save edited bus.
          */
         function() {
             const $playground = $(this).parents('.bus');
@@ -259,25 +261,33 @@ $(function() {
         return false;
     });
     
-    $(document).on('click', '.bus-view', function() {
-        $('#all-close').trigger('click');
-        const $viewer = $(this);
-        const v = $viewer.text();
-        const $editor = showBusEditor(v, $viewer.attr('id'));
-        
-        const linearIndex = $viewer.data('selection');
-        if(linearIndex) {
-            const groupedIndex = findGroupIndex(v, linearIndex);
-            $editor.find(`.slot:eq(${groupedIndex}) .open`).each((_, el) => el.checked = true);
+    $(document).on('click', '.bus-view',
+        /**
+         * Switches to editor upon clicking on viewer.
+         */
+        function() {
+            $('#all-close').triggerHandler('click');
+            const $viewer = $(this);
+            const v = $viewer.clone()
+                .find("style")
+                .remove()
+                .end()
+                .text()
+                .trim();//Pay attention to this string's format as it's loosely retrieved from HTML and may contain unwanted artifacts.
+            const $editor = showBusEditor(v, $viewer.attr('id'));
+
+            const linearIndex = $viewer.data('selection');
+            if(0 <= linearIndex) {
+                const groupedIndex = findGroupIndex(v, linearIndex);
+                $editor.find(`.slot:eq(${groupedIndex}) .open`)
+                    .each((_, el) => el.checked = true);
+            }
+            $viewer.replaceWith($editor);
+            $editor.get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        
-        $viewer.replaceWith($editor);
-        adjustBusScale();
-        
-        $editor.get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    );
     
-    console.log(`WELLCOME to a legend of...`);
+    console.log(`WELLCOME to the legend of...`);
     BUS('f0');
     BUS('f0 c2');
     console.log('I K A R U S');
@@ -340,20 +350,36 @@ $(function() {
     const selectedIndex = window.location.hash ? entries.findIndex(e => busIncludes(e[1], window.location.hash.slice(1))) : -1;
     $('#slots').replaceWith(entries.map((kvp, index) => (index === selectedIndex ? showBusEditor : showBusView)(kvp[1], kvp[0])));
     
-    window.addEventListener('hashchange', function() {
-        const $controls = $('.bus,.bus-view');
-        const entries = $controls.map((_, el) => {
-            const $el = $(el);
-            return [[ el.id, $el.is('.bus') ? deflateBus($el) : $el.is('.bus-view') ? $el.text() : '' ]];
-        }).get();
-            
-        const selectedIndex = window.location.hash ? entries.findIndex(e => busIncludes(e[1], window.location.hash.slice(1))) : -1;
-        $controls
-            .filter(`:eq(${selectedIndex}).bus-view`)
-            .trigger('click');
-    });
+    window.addEventListener('hashchange',
+        /**
+         * Msintains selection when traversing back the browsing history.
+         */
+        function() {
+            const $controls = $('.bus,.bus-view');
+            const entries = $controls.map((_, el) => {
+                const $el = $(el);
+                return [[ el.id, $el.is('.bus')
+                    ? deflateBus($el)
+                    : $el.is('.bus-view')
+                        ? $el.clone()
+                            .find("style")
+                            .remove()
+                            .end()
+                            .text()
+                            .trim()
+                        : '' ]];
+            }).get();
+                
+            const selectedIndex = window.location.hash ? entries.findIndex(e => busIncludes(e[1], window.location.hash.slice(1))) : -1;
+            if(0 <= selectedIndex) {
+                $controls
+                    .filter(`:eq(${selectedIndex}).bus-view`)
+                    .trigger('click');
+            }
+        }
+    );
     
-    $( "body > label" ).sortable({
+    $( ".bus-container" ).sortable({
         items: '.bus,.bus-view',
         opacity: 0.5,
         revert: true,
@@ -432,72 +458,53 @@ $(function() {
                 const $editor = $(editor);
                 const v = deflateBus($editor);
                 $editor.replaceWith(showBusView(v, $editor.attr('id')));
-                adjustBusScale();
             });
-            adjustBusScale();
             history.replaceState(null, null, ' ');
         }
     )
     
-    $(document).on().on('click', '.bus-view span',
+    $(document).on('click', '.bus-view span',
         /**
          * A small courtesy of remembering where user clicked to open editor on the same section.
          */
         function(e) {
-            const $viewer = $(this).parent('.bus-view');
+            const $viewer = $(this).parents('.bus-view');
             $viewer.data('selection', $viewer.find('span').index(this));
             return true;
         }
     );
-    
-    // Run the function on page load and whenever the viewport changes
-    window.addEventListener('resize', adjustBusScale);
-    window.addEventListener('orientationchange', adjustBusScale);
-    document.addEventListener('DOMContentLoaded', adjustBusScale);
-    adjustBusScale();
 });
 
-function adjustBusScale() {
-    const landscape = window.matchMedia("(max-device-width: 915px) and (orientation: landscape)").matches;
-    const portrait = window.matchMedia("(max-device-width: 460px) and (orientation: portrait)").matches;
-    const buses = document.querySelectorAll('.bus, .bus-view');
-    const busContainer = document.querySelector('.bus-container');
-
-    if (!busContainer) return;
-
-    buses.forEach(bus => {
-        bus.style.transform = "none";
-        bus.style.width = "unset";
-    });
-    busContainer.style.gap = "unset";
-
-    if (landscape) {
-        const maxHeight = Math.max(...[...buses].map(bus => bus.getBoundingClientRect().height + 40));
-        const maxWidth = Math.max(...[...buses].map(bus => bus.getBoundingClientRect().width + 40));
-        const scaleFactor = Math.min(busContainer.clientHeight / maxHeight, busContainer.clientWidth / maxWidth);
-
-        buses.forEach(bus => {
-            bus.style.marginRight = `${bus.getBoundingClientRect().width / 2}vh`;
-            bus.style.transform = `scale(${scaleFactor})`;
-            bus.style.transformOrigin = "top left";
-        });
-
-        busContainer.style.gap = `${2 * scaleFactor}vh`;
-    } else if (portrait) {
-        const maxWidth = Math.max(...[...buses].map(bus => bus.getBoundingClientRect().width)) + 40;
-        const scaleFactorX = busContainer.clientWidth / maxWidth;
-
-        buses.forEach(bus => {
-            bus.style.transform = `scale(${scaleFactorX})`;
-            bus.style.transformOrigin = "top left";
-            bus.style.marginRight = "0"
-        });
-        busContainer.style.gap = `${2 * scaleFactorX}vh`;
-    } else {
-        buses.forEach(bus => {
-            bus.style.transform = "none";
-            bus.style.marginRight = "2vh";
-            bus.style.marginBottom = "2vw";
-        });
+$(document).ready(function() {
+    // Function to update the transform for .rear based on .right width
+    function updateTransform(container) {
+        var rightWidth = $(container).find('.right').outerWidth();
+        var halfRightWidth = rightWidth / 2;
+        $(container)
+            .find('.rear').css('transform', 'rotateY(-90deg) translateZ(' + halfRightWidth + 'px)')
+            .end()
+            .find('.front').css('transform', 'rotateY(90deg) translateZ(' + halfRightWidth + 'px)');
     }
-}
+    
+    // Observe the document for added nodes
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if ($(node).hasClass('paper-net')) {
+                    // If the added node is a .paper-net, update its .rear transform
+                    updateTransform(node);
+                } else {
+                    $(node).find('.paper-net').each(updateTransform);
+                }
+            });
+        });
+    });
+
+    // Start observing the document body for child node additions
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    $('.paper-net').get().forEach(updateTransform);
+});

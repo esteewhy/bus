@@ -160,17 +160,19 @@ const BUS = showBus;
 
 //const groupped_rx = /([dhfrtw])(\d+)\s*(?:([acl])(\d+))?/g;
 
-function showBus(bus = genesys['bus0'], visitors = [consoleVisitor]) {
+function showBus(bus = genesys['bus0'], visitors = [consoleVisitor], id) {
     const colorElement = bus.match(/c\d+/g)?.[0] ?? 'c1';
     const slice = [
-        ...bus.split(/(?<=h\d+)/g)[0].match(/\w\d+/g).filter(part => !part.startsWith('c')),
+        ...bus
+            //.split(/(?<=h\d+)/g)[0]///Stops at right side of the bus.
+            .match(/\w\d+/g)
+            .filter(part => !part.startsWith('c')),
         colorElement
     ];
     
     const styles = slice.map((curr, index) => {
-        const oldRules = (SPEC.sprites[curr[0]] || '') + SPEC.sprites[curr];
-        let newRules = oldRules.replaceAll('/*top*/', '');
-        const isTopItem = oldRules !== newRules;
+        let newRules = (SPEC.sprites[curr[0]] || '') + SPEC.sprites[curr];
+        const isTopItem = 0 <= newRules.indexOf('/*top*/');
 
         if (!isTopItem && index > 0) {
             const prev = slice[index - 1];
@@ -180,7 +182,9 @@ function showBus(bus = genesys['bus0'], visitors = [consoleVisitor]) {
                     (newRules.match(/padding-left:\s*(\d+)px/) || [])[1]
                 ].map(Number);
                 const leftShift = Math.round(Math.max((prevWidth + currWidth) / 2, currWidth));
-                newRules += `margin-left: ${-leftShift}px; padding-left: ${leftShift}px;`;
+                newRules = newRules
+                    .replace(/margin-left:\s*(-?\d+)px;/, `margin-left: ${-leftShift}px;`)
+                    .replace(/padding-left:\s*(\d+)px;/, `padding-left: ${leftShift}px;`);
             }
         }
         
@@ -190,7 +194,7 @@ function showBus(bus = genesys['bus0'], visitors = [consoleVisitor]) {
         ) + newRules;
     });
 
-    return visitors.map(visitor => visitor(slice, styles));
+    return visitors.map(visitor => visitor(slice, styles, id));
 }
 
 function consoleVisitor(slice, styles) {
@@ -206,8 +210,11 @@ function defaultDelegateFactory() {
     };
 }
 
-function htmlVisitorFactory(delegate = defaultDelegateFactory()) {
-    return function(slice, styles) {
+/**
+ * Keep styles inline with respective span, inflicting a lot of overhead.
+ */
+function htmlVisitorInlineFactory(delegate = defaultDelegateFactory()) {
+    return function(slice, styles, id) {
         const html = slice
             .map((a, index) =>
                 'c' === a[0]
@@ -216,15 +223,89 @@ function htmlVisitorFactory(delegate = defaultDelegateFactory()) {
             )
             .join(' ');
 
-        return delegate(html);
+        return delegate(html, slice, styles, id);
     };
 }
 
-const htmlVisitor = htmlVisitorFactory((html) =>
-    $("<a class='bus-view' />")
-        .html(html)
-        .attr('href', '#' + encodeURIComponent($(`<span>${html}</span>`).text().replace(/\s+/g, '')))
-);
+/**
+ * Isolates CSS rules into bus-scoped <style/> block, allowing for optinmization.
+ */
+function htmlVisitorOutlineFactory(delegate = defaultDelegateFactory()) {
+    return function (slice, styles, id) {
+        const styleSheet = [];
+        let prevClass = "";
+        
+        const colorElement = slice.find(a => 'c' == a[0]);
+        
+        const html = slice
+            .map((a, index) => {
+                if (a[0] === 'c') return a; // Preserve content elements
+                const rules = styles[index];
+                const isTopItem = 0 <= rules.indexOf('/*top*/');
+                const className = `${a[0]}.${a}`;
+                const selector = prevClass && !isTopItem ? `#${id} .${prevClass} + .${className}` : `#${id} .${className}`;
+
+                styleSheet.push(`${selector} { ${rules + (isTopItem ? '' : '; background-image: url(tiles.png); ')} }`);
+                prevClass = className; // Update previous class for the next iteration
+
+                return `<span class="${a[0]} ${a}">${a}</span>`;
+            })
+            .join(' ');
+        
+        const livreyCss = colorElement ? SPEC.sprites._.replace('/*livrey*/', `, ${SPEC.livreys[colorElement]}`) : SPEC.sprites._;
+        
+        styleRules = [...new Set(styleSheet)]
+            .join('\n')
+            .replaceAll('/*top*/', '')
+            .replaceAll(livreyCss, '')
+            .replaceAll(SPEC.sprites._.replace('/*livrey*/', ''), '');
+        
+        const styleTag = `<style>\n#${id} span { width: unset; display:inline-block; ${livreyCss}}\n${styleRules}</style>\n`.replaceAll(';;', ';');
+
+        return delegate(html, slice, styles, id, styleTag);
+    };
+}
+
+/**
+ * Rendering bus as a single strip of parts.
+ */
+function flatRenderer(html, slice, styles, id, styleTag) {
+    return $("<a class='bus-view' />")
+        .html(styleTag + html)
+        .attr('href', '#' + encodeURIComponent($(`<span>${html}</span>`).text().replace(/\s+/g, '')));
+}
+
+/**
+ * Separates bus sides into <div/>s suitable for further transformations.
+ */
+function fullRenderer(html, slice, styles, id, styleTag) {
+    const colorElement = html.match(/c\d+/g)?.[0] ?? 'c1';
+    const $html = $(`<div>${html}</div>`); // Wrap the HTML in a <div>
+
+    // 1. First chunk: All spans up until and including the first .h
+    const firstH = $html.find('span.h').first(); // Get the first occurrence of .h
+    const spansBeforeFirstH = $html.find('span').slice(0, firstH.index() + 1); // Include the first .h
+
+    // 2. Second chunk: The first .f
+    const firstF = $html.find('span.f').first();
+
+    // 3. Third chunk: From the second .h up until the next .t (including the .t)
+    const secondH = $html.find('span.h').eq(1); // Get the second occurrence of .h
+    const nextT = secondH.nextAll('span.t').first(); // Find the next .t after the second .h
+    const spansUntilNextT = secondH.nextUntil(nextT).add(nextT); // Get spans until the next .t and include it
+
+    // 4. Fourth chunk: The trailing .r wrapped in a <div class="rear">
+    const trailingR = $html.find('span.r').first();
+
+    return $("<a class='bus-view paper-net' />")
+        .append(styleTag)
+        .append($('<div class="right"/>').html(spansBeforeFirstH)) // First chunk
+        .append($('<div class="front"/>').html(firstF)) // Second chunk
+        .append($('<div class="left"/>').html(secondH.add(spansUntilNextT))) // Third chunk including the trailing .t
+        .append($('<div class="rear"/>').html(trailingR)) // Fourth chunk wrapped in <div class="rear">
+        .append(colorElement)
+        .attr('href', '#' + encodeURIComponent($(`<span>${html}</span>`).text().replace(/\s+/g, '')));
+}
 
 function parseAnnotations(docs) {
     const graph = {};
