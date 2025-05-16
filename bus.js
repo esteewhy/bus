@@ -475,9 +475,8 @@ $(function() {
         function(e) {
             const $viewer = $(this).closest('.bus-view'); // Get the closest .bus-view
             const isClone = $(this).closest('.clone').length > 0; // Determine if it's inside a clone
-            const selector = isClone ? '.clone span' : '.bus-view span'; // Adjusted selector
-            const selection = $viewer.find(selector).index(this);
-            
+            const selector = isClone ? '.clone span' : ':not(.clone) span'; // Adjusted selector
+            const selection = $viewer.find(selector + ',>span').index(this);
             $viewer.data('selection', selection);
             return true;
         }
