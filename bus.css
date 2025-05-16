@@ -15,6 +15,13 @@ label { cursor: hand; }
     position: absolute;
     left: -9999px;
 }
+.bus .left input, .bus .front input {
+    right: -9999px;
+    left: initial;
+}
+.bus .front input {
+    
+}
 
 .shadow label {
     display: inline-flex;
@@ -66,8 +73,6 @@ label { cursor: hand; }
 
 .paint :checked + label,
 .picker :checked + label,
-:checked[value="spot2"] ~ .shadow .top,
-.spot2,
 blink {
   animation: blink-animation 1s steps(5, start) infinite;
   -webkit-animation: blink-animation 1s steps(5, start) infinite;
@@ -96,10 +101,10 @@ blink {
 
 /*exceptions and quircks */
 :checked[value="a2"] ~ .shadow .bottom,/* Left-align axle */
-.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a5"] ~ .shadow .bottom { left: 0; }
-.slot:has(:checked[value^="f"]) ~ .slot :checked[value="a2"] ~ .shadow .bottom { right: 0; left: initial; }/* Right-align axle in mirror view */
+.left.side .slot :checked[value="a5"] ~ .shadow .bottom { left: 0; }
+.left.side .slot :checked[value="a2"] ~ .shadow .bottom { right: 0; left: initial; }/* Right-align axle in mirror view */
 :checked[value="a5"] ~ .shadow .bottom { right: 0; } /* Right-align axle in left side view */
-:checked[value="f"] ~ :checked[value="l5"] ~ .shadow .bottom { right: 0; } /* Right-align hatch in mirror view */
+.left.side .slot :checked[value="l5"] ~ .shadow .bottom { right: 0; } /* Right-align hatch in mirror view */
 :checked[value="l00"] ~ .shadow .bottom,
 :checked[value="l000"] ~ .shadow .bottom { right: 0; }
 :checked[value="w6"] ~ :checked[value="a3"] ~ .shadow .bottom { margin-left: -12px; }
@@ -123,36 +128,22 @@ blink {
     box-shadow: 0px 5px 5px rgba(128, 128, 128, 0.7);
 }
 
-#ddd:checked ~ .bus { transform: perspective(3cm) rotateX(351deg) rotateY(333deg); } /* Lock 3D view */
-
-#port:not(:checked) ~ .bus .slot:has(:checked[value^="h"]) ~ .slot, /* Hide everything beyond left side view */
-#port:not(:checked) ~ .bus .f, /* Hide front part(s) from picker */
-#port:not(:checked) ~ .bus .r, /* Hide rear part(s) from picker */
-.slot .f,
-.slot .r,
-.slot :checked[value^="t"] ~ .shadow .slot .t,/* No more then one tail section. */
-.slot :checked[value^="h"] ~ .shadow .slot .h,
-.slot:has(:checked + :not(.f)) + .slot:has(:checked + .h) + .slot .picker input + :not(.f),
-.slot:has(:checked + .f) ~ .slot .f,
-.slot:has(:checked + .f) + .slot .picker input + :not(.h),
-.slot:has(:checked + .f) ~ .slot:has(:checked + .h) ~ .slot .h,
-.slot:has(:checked + .f) ~ .slot:has(:checked + .t) + .slot .picker input + :not(.r),
-.slot:has(:checked + .r) ~ .slot,
-.slot:has(.picker :checked + .spot) ~ .slot:has(.picker :checked + .spot) {
-    display: none;
+.front.face .picker {
+    transform: rotate(90deg) translate(50px, -50px);
+}
+.rear.face .picker {
+    transform: rotate(-90deg) translate(40px, 0);
+}
+.left.face .picker {
+    transform: rotate(180deg) translate(-30px, 40px);
 }
 
-.slot:has(:checked + .h) + .slot .f,
-.slot:has(:checked + .f) + .slot .h,
-.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot .picker input + :is(.spot1):is(.t):is(.w):is(.d):is(.j), /*:not(.f):not(.r):not(.t):not(.h),*/
-.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot .t,
-.slot:has(:checked + .f) ~ .slot:has(:checked + .t) + .slot .r {
-    display: inline-block;
-}
-
-/* Allow only one front and rear view slot */
-.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot .f,
-.slot:has(:checked + .f) + .slot:has(:checked + .h) ~ .slot:has(:checked + .t) + .slot .picker input + :not(.r) {
+.front.face .picker :not(.f),
+.rear.face .picker :not(.r),
+.right.face .picker .f,
+.right.face .picker .r,
+.left.face .picker .f,
+.left.face .picker .r {
     display: none;
 }
 
@@ -177,27 +168,26 @@ blink {
 :checked[value^="w"] ~ .picker .conditional ~ label { display: inline-block; }
 
 /* 3D view */
-/*
-.paper-net {
+
+.bus {
     display: grid;
     grid-template-columns: auto auto auto;
     grid-template-rows: auto auto;
 }
 
-.paper-net > div {
-    height: 50px;
+.bus > div.face {
+    min-height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.paper-net .top { grid-column: 2; grid-row: 2; transform: rotate(0deg); }
-.paper-net .left { grid-column: 2; grid-row: 1; transform: rotate(180deg); }
-.paper-net .front { grid-column: 3; grid-row: 2; transform: rotate(-90deg); }
-.paper-net .right { grid-column: 2; grid-row: 3; transform: rotate(0deg); }
-.paper-net .rear { grid-column: 1; grid-row: 2; transform: rotate(90deg); }
-.paper-net .bottom { grid-column: 2; grid-row: 4; transform: rotate(0deg); }
-*/
+.bus .top { grid-column: 2; grid-row: 2; transform: rotate(0deg); }
+.bus .left { grid-column: 2; grid-row: 1; transform: rotate(180deg); }
+.bus .front { grid-column: 3; grid-row: 2; transform: rotate(-90deg); }
+.bus .right { grid-column: 2; grid-row: 3; transform: rotate(0deg); }
+.bus .rear { grid-column: 1; grid-row: 2; transform: rotate(90deg); }
+.bus .bottom { grid-column: 2; grid-row: 4; transform: rotate(0deg); }
 
 .paper-net {
     display: flex;
@@ -220,7 +210,7 @@ blink {
 
 .paper-net .top    { transform: rotateX(90deg) translateZ(50px); }
 .paper-net .bottom { transform: rotateX(-90deg) translateZ(-50px); }
-.paper-net  .rear { transform: rotateY(-90deg) translateZ(88px);  }
+.paper-net .rear { transform: rotateY(-90deg) translateZ(88px);  }
 .paper-net .right { transform: translateZ(20px); }
 .paper-net .front { transform: rotateY(90deg) translateZ(88px); }
 .paper-net .left  { transform: rotateY(180deg) translateZ(20px); }
@@ -234,4 +224,62 @@ blink {
     outline-offset: 2px; /* Creates spacing around the highlight */
     box-shadow: 0 0 8px rgba(255, 255, 0, 0.6); /* Soft yellow glow */
     filter: brightness(1.2); /* Slightly brightens on hover */
+}
+
+/**
+ **************************************
+ */
+ .add-bus {
+    position: fixed; /* Fixes the button in the viewport */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
+    background-color: #007bff; /* Button color */
+    color: white; /* Text color */
+    text-align: center; /* Center the text */
+    border: none; /* No border */
+    border-radius: 50%; /* Circular button */
+    width: 60px; /* Button width */
+    height: 60px; /* Button height */
+    font-size: 24px; /* Font size */
+    line-height: 60px; /* Center text vertically */
+    text-decoration: none; /* Remove underline */
+    cursor: pointer; /* Pointer cursor on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    transition: background-color 0.3s; /* Smooth background color transition */
+    z-index: 1001; /* Ensure it appears above other elements */
+}
+
+.add-bus:hover {
+    font-weight: bold;
+    font-size: x-large;
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+.add-bus-container {
+    position: fixed; /* Fixes the container in the viewport */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
+    text-align: center; /* Center the text */
+    font-size: initial;
+}
+
+.hint {
+    display: none; /* Initially hide the hint */
+    position: absolute; /* Position relative to the container */
+    bottom: 50px; /* Position above the button */
+    right: 0; /* Align to the right */
+    min-width: 150px; /* Width of the hint */
+    min-height: 50px; /* Height of the hint */
+    background-color: #333; /* Background color of the hint */
+    color: white; /* Text color */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Padding inside the hint */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    font-size: 14px; /* Font size */
+    line-height: 1.5; /* Line height */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.add-bus-container:hover .hint {
+    display: block; /* Show the hint on hover */
 }

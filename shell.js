@@ -141,7 +141,7 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
         },
         get ["bus.gradients.css"]() {
             return cache['bus.gradients.css'] ??= LIVREYS.map(([id, {rules, note}]) =>`\
-.${id},:checked[value="${id}"] ~ .slot .shadow label { background-image: linear-gradient(to bottom, ${rules}); } /* ${note} */`).join('\n');
+.${id},:checked[value="${id}"] ~ div .slot .shadow label { background-image: linear-gradient(to bottom, ${rules}); } /* ${note} */`).join('\n');
         },
         get livreys() {
             return cache['livreys'] ??= Object.fromEntries(
@@ -152,7 +152,8 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
             return cache['hints'] ??= Object.fromEntries(
                 [...LIVREYS, ...SPRITES].map(([id, { note }]) => [id, note])
             );
-        }
+        },
+        SPRITES
     }
 })();
 
@@ -267,7 +268,7 @@ function htmlVisitorOutlineFactory(delegate = defaultDelegateFactory()) {
 }
 
 /**
- * Rendering bus as a single strip of parts.
+ * Renders bus as a single strip of parts.
  */
 function flatRenderer(html, slice, styles, id, styleTag) {
     return $("<a class='bus-view' />")
@@ -276,35 +277,40 @@ function flatRenderer(html, slice, styles, id, styleTag) {
 }
 
 /**
- * Separates bus sides into <div/>s suitable for further transformations.
+ * Renders bus in 3D.
  */
 function fullRenderer(html, slice, styles, id, styleTag) {
-    const colorElement = html.match(/c\d+/g)?.[0] ?? 'c1';
-    const $html = $(`<div>${html}</div>`); // Wrap the HTML in a <div>
-
-    // 1. First chunk: All spans up until and including the first .h
-    const firstH = $html.find('span.h').first(); // Get the first occurrence of .h
-    const spansBeforeFirstH = $html.find('span').slice(0, firstH.index() + 1); // Include the first .h
-
-    // 2. Second chunk: The first .f
-    const firstF = $html.find('span.f').first();
-
-    // 3. Third chunk: From the second .h up until the next .t (including the .t)
-    const secondH = $html.find('span.h').eq(1); // Get the second occurrence of .h
-    const nextT = secondH.nextAll('span.t').first(); // Find the next .t after the second .h
-    const spansUntilNextT = secondH.nextUntil(nextT).add(nextT); // Get spans until the next .t and include it
-
-    // 4. Fourth chunk: The trailing .r wrapped in a <div class="rear">
-    const trailingR = $html.find('span.r').first();
-
+    const $html = $(`<div>${html}</div>`);
+    const bus = $html.text();
     return $("<a class='bus-view paper-net' />")
-        .append(styleTag)
-        .append($('<div class="right"/>').html(spansBeforeFirstH)) // First chunk
-        .append($('<div class="front"/>').html(firstF)) // Second chunk
-        .append($('<div class="left"/>').html(secondH.add(spansUntilNextT))) // Third chunk including the trailing .t
-        .append($('<div class="rear"/>').html(trailingR)) // Fourth chunk wrapped in <div class="rear">
-        .append(colorElement)
-        .attr('href', '#' + encodeURIComponent($(`<span>${html}</span>`).text().replace(/\s+/g, '')));
+        .append(
+            styleTag,
+            splitSides($html),
+            html.match(/c\d+/)?.[0] ?? "c1")
+        .attr("href", "#" + encodeURIComponent(bus.replace(/\s+/g, "")));
+}
+
+/**
+ * Takes linear markup of either bus editor or viewer and splits it into 4 sides each wrapped in <div/>.
+ */
+function splitSides($html) {
+    const sel = selector => `.slot:has(:checked[value^="${selector}"]), >span.${selector}`;
+    const getSplitPoint = (selector) => $html.find(sel(selector)).first();
+    
+    const firstHead = getSplitPoint('h');
+    const secondHead = $html.find(sel('h')).eq(1);
+    const nextTail = secondHead.nextAll(sel('t')).first();
+        
+    const sections = [
+        $html.find(`.slot, >span`).slice(0, firstHead.index() + 1),
+        getSplitPoint('f'),
+        secondHead.add(secondHead.nextUntil(nextTail).add(nextTail)),
+        getSplitPoint('r'),
+    ];
+    
+    return ['right', 'front', 'left', 'rear'].map((side, i) => 
+            sections[i]?.length && $("<div/>", { class: `${side} face` }).html(sections[i])
+        ).filter(Boolean);
 }
 
 function parseAnnotations(docs) {

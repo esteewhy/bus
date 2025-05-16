@@ -45,7 +45,7 @@ function slot$(parentId, n) {
 
     const sources = [
         { labels: '<a href="" class="insert" title="insert">+</a><a href="" class="delete" title="delete">-</a><br/>' },
-        option$('spot', 2, groupName, 'top', 'checked'),
+        //option$('spot', 2, groupName, 'top', 'checked'),
         option$('t', 0, groupName, 'top'),
         option$('j', 0, groupName, 'top'),
         _grp(2, 'h', 'top'),
@@ -92,7 +92,7 @@ function playground$(id, size = 20) {
     const livreys = group$(9, 'c', 'paint', id);
     return $('<fieldset class="bus" id="' + id + '" />')
         .append(livreys.inputs)
-        .append($.map(Array.from(new Array(size + 1).keys()), function(n) {
+        .append($.map(Array.from(new Array(size).keys()), function(n) {
             return slot$(id, n);
         }))
         .prepend($('.templates > .options').clone())
@@ -193,12 +193,10 @@ function deflateBus($board) {
  * @depends inflateBus - Assign bus string to just generated editor.
  * @usedBy On starting editing upon clicking on view.
  */
-function showBusEditor(bus, id = 'bus' + new Date().getTime()) {
-    const matches = bus.match(/([dhfjrtw])\d+/g) || [];
-    var $canvas = playground$(id, matches.length).data('initial-bus', bus);
+function showBusEditor(bus, id = 'bus' + Date.now()) {
+    const $canvas = playground$(id, (bus.match(/([dhfjrtw])\d+/g) || []).length).data('initial-bus', bus);
     inflateBus($canvas, bus);
-    //$('.slot', $canvas).wrapAll('<div class="left"/>');
-    return $canvas;
+    return $canvas.append(splitSides($canvas));
 }
 
 /**
@@ -220,7 +218,6 @@ function showBusView(bus, id = 'bus' + new Date().getTime()) {
 function normalizeBus(bus) {
     return bus.replace(/\s+|c\d+/g, '').trim();
 };
-
 
 /**
  * Test for buses equality.
@@ -254,13 +251,6 @@ $(function() {
         }
     ).trigger('change');
     
-    $(document).on('click', '.bus .options .delete', function() {
-        confirm('Sure to scrape this vehicle?')
-            && (localStorage.removeItem($(this).parents('.bus').attr('id'))
-                || $(this).parents('.bus').remove());
-        return false;
-    });
-    
     $(document).on('click', '.bus-view',
         /**
          * Switches to editor upon clicking on viewer.
@@ -269,11 +259,12 @@ $(function() {
             $('#all-close').triggerHandler('click');
             const $viewer = $(this);
             const v = $viewer.clone()
-                .find("style")
+                .find("style,.clone")
                 .remove()
                 .end()
                 .text()
                 .trim();//Pay attention to this string's format as it's loosely retrieved from HTML and may contain unwanted artifacts.
+console.log('V=>E', v);                
             const $editor = showBusEditor(v, $viewer.attr('id'));
 
             const linearIndex = $viewer.data('selection');
@@ -352,7 +343,7 @@ $(function() {
     
     window.addEventListener('hashchange',
         /**
-         * Msintains selection when traversing back the browsing history.
+         * Maintains selection when traversing back the browsing history.
          */
         function() {
             const $controls = $('.bus,.bus-view');
@@ -362,7 +353,7 @@ $(function() {
                     ? deflateBus($el)
                     : $el.is('.bus-view')
                         ? $el.clone()
-                            .find("style")
+                            .find("style,.clone")
                             .remove()
                             .end()
                             .text()
@@ -385,6 +376,20 @@ $(function() {
         revert: true,
         update: function( event, ui ) {
             localStorage['order'] = $('.bus,.bus-view', this).map((_, el) => el.id).get().toString();
+        },
+        stop: function(event, ui) {
+            const windowHeight = $(window).height();
+            const windowWidth = $(window).width();
+
+            // Check if the item is outside the viewport
+            if (ui.offset.top < 0 || ui.offset.top > windowHeight || 
+                ui.offset.left < 0 || ui.offset.left > windowWidth) {
+               
+                confirm("Item is outside the page. Do you want to delete it?")
+                    && (localStorage.removeItem(ui.item.attr('id'))
+                        || ui.item.remove()
+                        || $('#all-close').triggerHandler('click'));
+            }
         }
     });
     
@@ -463,28 +468,54 @@ $(function() {
         }
     )
     
-    $(document).on('click', '.bus-view span',
-        /**
-         * A small courtesy of remembering where user clicked to open editor on the same section.
-         */
-        function(e) {
-            const $viewer = $(this).parents('.bus-view');
-            $viewer.data('selection', $viewer.find('span').index(this));
-            return true;
-        }
-    );
+    $(document).on('click', '.bus-view span', function(e) {
+        const $viewer = $(this).closest('.bus-view'); // Get the closest .bus-view
+        const $parentDiv = $(this).parent('div'); // Get the parent <div> of the clicked <span>
+        const selection = $viewer.find($parentDiv.hasClass('clone') ? 'div.clone > span' : 'div:not(.clone) > span').index(this)
+        $viewer.data('selection', selection);
+        console.log('SEL', selection);
+        return true;
+    });
 });
 
 $(document).ready(function() {
-    // Function to update the transform for .rear based on .right width
-    function updateTransform(container) {
+    function expandEnds(container) {
         var rightWidth = $(container).find('.right').outerWidth();
         var halfRightWidth = rightWidth / 2;
         $(container)
-            .find('.rear').css('transform', 'rotateY(-90deg) translateZ(' + halfRightWidth + 'px)')
+            .find('.rear').css('transform', `rotateY(-90deg) translateZ(${halfRightWidth}px)`)
             .end()
-            .find('.front').css('transform', 'rotateY(90deg) translateZ(' + halfRightWidth + 'px)');
+            .find('.front').css('transform', `rotateY(90deg) translateZ(${halfRightWidth}px)`);
+        return container;
     }
+    
+    function bendOneSide($side, bendLineHeight = 50, angle = 7) {
+        $side.clone()
+            .insertAfter($side)
+            .css('clip-path', `polygon(0 0, 100% 0, 100% ${bendLineHeight}%, 0 ${bendLineHeight}%)`)
+            .css('transform', function(i, curr) { return curr + ` rotateX(${angle}deg)`; })
+            .addClass('clone')
+            //.find('span').text('').end()
+            //.css('min-height', '47px')
+            .end()
+            .end()
+            .css('clip-path', `polygon(0 ${bendLineHeight}%, 100% ${bendLineHeight}%, 100% 100%, 0 100%)`);
+    }
+    
+    function bendWindows(container) {
+        'right,front,left,rear'.split(',')
+            .forEach((s, i) => bendOneSide($(container).find('.' + s), i === 1 ? 50 : 43, 1 === i % 2 ? 7 : 5));
+    }
+    
+    function updateTransform(container) {
+        expandEnds(container);
+        bendWindows(container);
+        return container;
+    }
+    
+    $(document).on("updateTransform", function(event, container) {
+        updateTransform(container);
+    });
     
     // Observe the document for added nodes
     var observer = new MutationObserver(function(mutations) {
@@ -492,9 +523,13 @@ $(document).ready(function() {
             mutation.addedNodes.forEach(function(node) {
                 if ($(node).hasClass('paper-net')) {
                     // If the added node is a .paper-net, update its .rear transform
-                    updateTransform(node);
+                    //updateTransform(node);
+                    $(document).trigger("updateTransform", [node]);
                 } else {
-                    $(node).find('.paper-net').each(updateTransform);
+                    //$(node).find('.paper-net').each(updateTransform);
+                    $(node).find('.paper-net').each(function() {
+                        $(document).trigger("updateTransform", [this]);
+                    });
                 }
             });
         });

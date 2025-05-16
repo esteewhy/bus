@@ -75,7 +75,7 @@ background: repeating-linear-gradient(
     
     .bus-view, .bus {
         transform: scale(1.32051);
-        width: unset;
+        /*width: unset;*/
         margin-right: 0px;
         margin-bottom: 2vw;
         transform-origin: left top;
