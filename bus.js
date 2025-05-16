@@ -264,7 +264,7 @@ $(function() {
                 .end()
                 .text()
                 .trim();//Pay attention to this string's format as it's loosely retrieved from HTML and may contain unwanted artifacts.
-console.log('V=>E', v);                
+            
             const $editor = showBusEditor(v, $viewer.attr('id'));
 
             const linearIndex = $viewer.data('selection');
@@ -468,14 +468,20 @@ $(function() {
         }
     )
     
-    $(document).on('click', '.bus-view span', function(e) {
-        const $viewer = $(this).closest('.bus-view'); // Get the closest .bus-view
-        const $parentDiv = $(this).parent('div'); // Get the parent <div> of the clicked <span>
-        const selection = $viewer.find($parentDiv.hasClass('clone') ? 'div.clone > span' : 'div:not(.clone) > span').index(this)
-        $viewer.data('selection', selection);
-        console.log('SEL', selection);
-        return true;
-    });
+    $(document).on('click', '.bus-view span',
+        /**
+         * A small courtesy of remembering where user clicked to open editor on the same section.
+         */
+        function(e) {
+            const $viewer = $(this).closest('.bus-view'); // Get the closest .bus-view
+            const isClone = $(this).closest('.clone').length > 0; // Determine if it's inside a clone
+            const selector = isClone ? '.clone span' : '.bus-view span'; // Adjusted selector
+            const selection = $viewer.find(selector).index(this);
+            
+            $viewer.data('selection', selection);
+            return true;
+        }
+    );
 });
 
 $(document).ready(function() {
@@ -495,8 +501,6 @@ $(document).ready(function() {
             .css('clip-path', `polygon(0 0, 100% 0, 100% ${bendLineHeight}%, 0 ${bendLineHeight}%)`)
             .css('transform', function(i, curr) { return curr + ` rotateX(${angle}deg)`; })
             .addClass('clone')
-            //.find('span').text('').end()
-            //.css('min-height', '47px')
             .end()
             .end()
             .css('clip-path', `polygon(0 ${bendLineHeight}%, 100% ${bendLineHeight}%, 100% 100%, 0 100%)`);
