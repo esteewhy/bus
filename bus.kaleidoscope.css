@@ -1,0 +1,58 @@
+/**
+ **************************************
+ */
+ .add-bus {
+    position: fixed; /* Fixes the button in the viewport */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
+    background-color: #007bff; /* Button color */
+    color: white; /* Text color */
+    text-align: center; /* Center the text */
+    border: none; /* No border */
+    border-radius: 50%; /* Circular button */
+    width: 60px; /* Button width */
+    height: 60px; /* Button height */
+    font-size: 24px; /* Font size */
+    line-height: 60px; /* Center text vertically */
+    text-decoration: none; /* Remove underline */
+    cursor: pointer; /* Pointer cursor on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    transition: background-color 0.3s; /* Smooth background color transition */
+    z-index: 1001; /* Ensure it appears above other elements */
+}
+
+.add-bus:hover {
+    font-weight: bold;
+    font-size: x-large;
+    background-color: #0056b3; /* Darker shade on hover */
+}
+
+.add-bus-container {
+    position: fixed; /* Fixes the container in the viewport */
+    bottom: 20px; /* Distance from the bottom */
+    right: 20px; /* Distance from the right */
+    text-align: center; /* Center the text */
+    font-size: initial;
+    z-index: 999;
+}
+
+.hint {
+    display: none; /* Initially hide the hint */
+    position: absolute; /* Position relative to the container */
+    bottom: 50px; /* Position above the button */
+    right: 0; /* Align to the right */
+    min-width: 150px; /* Width of the hint */
+    min-height: 50px; /* Height of the hint */
+    background-color: #333; /* Background color of the hint */
+    color: white; /* Text color */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Padding inside the hint */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    font-size: 14px; /* Font size */
+    line-height: 1.5; /* Line height */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.add-bus-container:hover .hint {
+    display: block; /* Show the hint on hover */
+}

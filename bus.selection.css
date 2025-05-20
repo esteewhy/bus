@@ -47,7 +47,16 @@
 :nth-of-type(47):checked ~ .picker label:nth-of-type(47),
 :nth-of-type(48):checked ~ .picker label:nth-of-type(48),
 :nth-of-type(49):checked ~ .picker label:nth-of-type(49),
-:nth-of-type(50):checked ~ .picker label:nth-of-type(50) {
+:nth-of-type(50):checked ~ .picker label:nth-of-type(50),
+:nth-of-type(51):checked ~ .picker label:nth-of-type(51),
+:nth-of-type(52):checked ~ .picker label:nth-of-type(52),
+:nth-of-type(53):checked ~ .picker label:nth-of-type(53),
+:nth-of-type(54):checked ~ .picker label:nth-of-type(54),
+:nth-of-type(55):checked ~ .picker label:nth-of-type(55),
+:nth-of-type(56):checked ~ .picker label:nth-of-type(56),
+:nth-of-type(57):checked ~ .picker label:nth-of-type(57),
+:nth-of-type(58):checked ~ .picker label:nth-of-type(58),
+:nth-of-type(59):checked ~ .picker label:nth-of-type(59) {
     animation: blink-animation 1s steps(5, start) infinite;
     border: 1px solid red;
     background-color: white;

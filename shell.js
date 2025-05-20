@@ -42,6 +42,7 @@ d5  | |5 |22|  |gliding (280.64)
 d6  | |6 |24|  |gliding wide (263.00)
 d7  | |7 |22|  |folding (260.50)
 d8  | |8 |16|  |steyr (old 256)
+d9  | |9 |16|  |folding front (266)
 h   |6|  |7 |  |head side view
 h0  | |0 |  |  |steel bumper
 h1  | |1 |  |  |plastic bumper (250.59)
@@ -52,6 +53,13 @@ f2  | |2 |42|  |plastic bumper (250.59)
 r   |8|  |  |  |rearside view
 r0  | |0 |38|  |engine underflor
 r1  | |1 |38|  |rear engine
+s   |9|  |16|  |roof elements
+s0  | |0 |  |  |blind
+s1  | |1 |  |  |wide hatch
+s2  | |2 |  |  |hatch
+s3  | |3 |  |  |vent
+s4  | |4 |10|  |front
+s5  | |5 |9 |  |rear
 `.split('\n')
         .filter(v => v && '' !== v.trim())
         .slice(1)
@@ -249,7 +257,7 @@ function htmlVisitorOutlineFactory(delegate = defaultDelegateFactory()) {
                 styleSheet.push(`${selector} { ${rules + (isTopItem ? '' : '; background-image: url(tiles.png); ')} }`);
                 prevClass = className; // Update previous class for the next iteration
 
-                return `<span class="${a[0]} ${a}">${a}</span>`;
+                return `<span class="${a[0]} ${a} ${colorElement}">${a}</span>`;
             })
             .join(' ');
         

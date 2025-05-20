@@ -52,7 +52,7 @@ function slot$(parentId, n) {
         _grp(3, 'f', 'top'),
         _grp(2, 'r', 'top'),
         { labels: '<br/>' },
-        _grp(9, 'd', 'top'),
+        _grp(10, 'd', 'top'),
         { labels: '<br/>' },
         _grp(9, 'w', 'top'),
         { inputs: '<br class="conditional"/>', labels: '<br class="conditional"/>' },
@@ -194,9 +194,13 @@ function deflateBus($board) {
  * @usedBy On starting editing upon clicking on view.
  */
 function showBusEditor(bus, id = 'bus' + Date.now()) {
-    const $canvas = playground$(id, (bus.match(/([dhfjrtw])\d+/g) || []).length).data('initial-bus', bus);
+    const $canvas = playground$(id, getBusLength(bus)).data('initial-bus', bus);
     inflateBus($canvas, bus);
     return $canvas.append(splitSides($canvas));
+}
+
+function getBusLength(bus) {
+    return (bus.match(/([dhfjrtw])\d+/g) || []).length;
 }
 
 /**
@@ -266,22 +270,30 @@ $(function() {
                 .trim();//Pay attention to this string's format as it's loosely retrieved from HTML and may contain unwanted artifacts.
             
             const $editor = showBusEditor(v, $viewer.attr('id'));
-
             const linearIndex = $viewer.data('selection');
             if(0 <= linearIndex) {
                 const groupedIndex = findGroupIndex(v, linearIndex);
                 $editor.find(`.slot:eq(${groupedIndex}) .open`)
                     .each((_, el) => el.checked = true);
             }
-            $viewer.replaceWith($editor);
+            $viewer.siblings().remove().end().unwrap().replaceWith($editor);
+            
+            //if($editor.parent().hasClass('warp')) {
+                //$editor.siblings().remove().end().unwrap();
+            //}
+            
             $editor.get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     );
     
-    console.log(`WELLCOME to the legend of...`);
+    console.group(`WELLCOME\nto the legend of...`);
     BUS('f0');
-    BUS('f0 c2');
-    console.log('I K A R U S');
+    BUS('f1 c2');
+    console.log(...either(
+        ['%c I k a %cr%c u %cs', 'font-style: italic; text-decoration: underline', 'font-style: italic', 'font-style: italic; text-decoration: underline', 'font-style: italic'],
+        ['%c_I_k_a_r_u_s', 'font-style: italic; font-weight: bold;']
+    ));
+    console.groupEnd();
 });
 
 /**
@@ -313,6 +325,9 @@ function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
         : {};
 }
 
+/**
+ * Bootstrapping and loading.
+ */
 $(function() {
     var urlParams = getUrlParams();
     window.history.pushState('object', document.title, location.href.split("?")[0]);
@@ -339,6 +354,11 @@ $(function() {
     urlParams['add'] && entries.push(['bus' + new Date().getTime(), urlParams['add'][0]]);
     
     const selectedIndex = window.location.hash ? entries.findIndex(e => busIncludes(e[1], window.location.hash.slice(1))) : -1;
+    window.location.hash && 0 > selectedIndex
+        && 0 < getBusLength(window.location.hash.slice(1))
+        && entries.push(['bus' + new Date().getTime(), window.location.hash.slice(1)])
+        && console.log('HASH', window.location.hash.slice(1));
+    
     $('#slots').replaceWith(entries.map((kvp, index) => (index === selectedIndex ? showBusEditor : showBusView)(kvp[1], kvp[0])));
     
     window.addEventListener('hashchange',
@@ -392,14 +412,11 @@ $(function() {
             }
         }
     });
-    
-    if(window.location.hash && 0 > selectedIndex) {
-        confirm('Looks like a new bus. Add it to your garage?');
-        ///TODO
-    }
 });
 
-
+/**
+ * Editing assistance.
+ */
 $(function() {
     var up = function(m, p1) { return "slot" + (parseInt(p1) + 1); };
     var down = function(m, p1) { return "slot" + (parseInt(p1) - 1); };
@@ -481,68 +498,4 @@ $(function() {
             return true;
         }
     );
-});
-
-$(document).ready(function() {
-    function expandEnds(container) {
-        var rightWidth = $(container).find('.right').outerWidth();
-        var halfRightWidth = rightWidth / 2;
-        $(container)
-            .find('.rear').css('transform', `rotateY(-90deg) translateZ(${halfRightWidth}px)`)
-            .end()
-            .find('.front').css('transform', `rotateY(90deg) translateZ(${halfRightWidth}px)`);
-        return container;
-    }
-    
-    function bendOneSide($side, bendLineHeight = 50, angle = 7) {
-        $side.clone()
-            .insertAfter($side)
-            .css('clip-path', `polygon(0 0, 100% 0, 100% ${bendLineHeight}%, 0 ${bendLineHeight}%)`)
-            .css('transform', function(i, curr) { return curr + ` rotateX(${angle}deg)`; })
-            .addClass('clone')
-            .end()
-            .end()
-            .css('clip-path', `polygon(0 ${bendLineHeight}%, 100% ${bendLineHeight}%, 100% 100%, 0 100%)`);
-    }
-    
-    function bendWindows(container) {
-        'right,front,left,rear'.split(',')
-            .forEach((s, i) => bendOneSide($(container).find('.' + s), i === 1 ? 50 : 43, 1 === i % 2 ? 7 : 5));
-    }
-    
-    function updateTransform(container) {
-        expandEnds(container);
-        bendWindows(container);
-        return container;
-    }
-    
-    $(document).on("updateTransform", function(event, container) {
-        updateTransform(container);
-    });
-    
-    // Observe the document for added nodes
-    var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            mutation.addedNodes.forEach(function(node) {
-                if ($(node).hasClass('paper-net')) {
-                    // If the added node is a .paper-net, update its .rear transform
-                    //updateTransform(node);
-                    $(document).trigger("updateTransform", [node]);
-                } else {
-                    //$(node).find('.paper-net').each(updateTransform);
-                    $(node).find('.paper-net').each(function() {
-                        $(document).trigger("updateTransform", [this]);
-                    });
-                }
-            });
-        });
-    });
-
-    // Start observing the document body for child node additions
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-    
-    $('.paper-net').get().forEach(updateTransform);
 });

@@ -37,6 +37,7 @@
 :checked[value="d6"] ~ .shadow .top, .d6 { background-position-y: calc(var(--dy) * 6); width: 24px; }/* gliding wide (263.00) */
 :checked[value="d7"] ~ .shadow .top, .d7 { background-position-y: calc(var(--dy) * 7); width: 22px; }/* folding (260.50) */
 :checked[value="d8"] ~ .shadow .top, .d8 { background-position-y: calc(var(--dy) * 8); width: 16px; }/* steyr (old 256) */
+:checked[value="d9"] ~ .shadow .top, .d9 { background-position-y: calc(var(--dy) * 9); width: 16px; }/* folding front (266) */
 :checked[value^="h"] ~ .shadow .top, .h { background-position-x: calc(var(--dx) * 6 - 1px); width: 7px; }/* head side view */
 :checked[value="h0"] ~ .shadow .top, .h0 { background-position-y: 0; }/* steel bumper */
 :checked[value="h1"] ~ .shadow .top, .h1 { background-position-y: calc(var(--dy) * 1); }/* plastic bumper (250.59) */
@@ -47,3 +48,10 @@
 :checked[value^="r"] ~ .shadow .top, .r { background-position-x: calc(var(--dx) * 8 - 1px); }/* rearside view */
 :checked[value="r0"] ~ .shadow .top, .r0 { background-position-y: 0; width: 38px; }/* engine underflor */
 :checked[value="r1"] ~ .shadow .top, .r1 { background-position-y: calc(var(--dy) * 1); width: 38px; }/* rear engine */
+:checked[value^="s"] ~ .shadow .top, .s { background-position-x: calc(var(--dx) * 9 - 1px); width: 16px; }/* roof elements */
+:checked[value="s0"] ~ .shadow .top, .s0 { background-position-y: 0; }/* blind */
+:checked[value="s1"] ~ .shadow .top, .s1 { background-position-y: calc(var(--dy) * 1); }/* wide hatch */
+:checked[value="s2"] ~ .shadow .top, .s2 { background-position-y: calc(var(--dy) * 2); }/* hatch */
+:checked[value="s3"] ~ .shadow .top, .s3 { background-position-y: calc(var(--dy) * 3); }/* vent */
+:checked[value="s4"] ~ .shadow .top, .s4 { background-position-y: calc(var(--dy) * 4); width: 10px; }/* front */
+:checked[value="s5"] ~ .shadow .top, .s5 { background-position-y: calc(var(--dy) * 5); width: 9px; }/* rear */

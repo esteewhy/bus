@@ -40,10 +40,12 @@ function generateBus() {
             either('w6 d7', 'w6 d6'),
             either('w2', 'd7', 'd5')
         ),
-        either('w0', 'w1', 'w2', 'w7', 'w8'),
-        either('a0', 'a1', 'a2'),
-        
-        either('w2', 'w8').repeat(Math.floor(Math.random() * 3) + 2) + ' ' + either('a3', 'a4', 'a5'),
+        either(
+            either('w0', 'w1', 'w2', 'w7', 'w8').repeat(either(4, 5)),
+            either('w2', 'w0').repeat(4).replace(/^(.{4})/, "$1" + either('d5', 'd7', either('w2', 'w0')))
+        )
+            .replace(/^(.{2})/, "$1" + either('a0', 'a1', 'a2'))
+        + ' ' + either('a3', 'a4', 'a5'),
         either('d3', 'd4', 'd5', 'd6', 'd8'),
         'f2' === parts.front ? 'h1' : 'h0'
     );

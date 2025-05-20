@@ -34,14 +34,14 @@
 }
 .r, .slot :checked[value^="r"] ~ .shadow label {
     clip-path: polygon(
-        98% 0%,  
+        93% 0%,  
         2% 0%,   
         0% 40%,  
         0% 85%,  
-        5% 90%,  
-        95% 90%, 
-        100% 85%,
-        100% 40% 
+        5% 88%,  
+        90% 88%, 
+        96% 85%,
+        96% 40% 
     );
 }
 .t, .slot :checked[value^="t"] ~ .shadow label {
@@ -73,6 +73,13 @@
 
 /*quirks*/
 /*doors in base color*/
+/*.bus-view .d:is(.d5, .d6, .d9),*/
+:checked[value="c1"] ~ div .slot :checked:is([value=d5], [value=d6], [value=d9]]) ~ .shadow label {
+    background-image: linear-gradient(to bottom, #E19000 0 6px, #e6d2b5 6px 42px, transparent 40px) ! important;
+}
+.bus-view .c1:is(.d5,.d6,.d9) {
+    background-image: url(tiles.png), linear-gradient(to bottom, #E19000 0 6px, #e6d2b5 6px 42px, transparent 40px) !important;
+}
 .bus:has(:checked + .c2) .shadow:has(~ .picker :checked + .d:is(.d7, .d4)) label {
     background-image: linear-gradient(to bottom, white 10px 42px, transparent 40px);
 }
@@ -102,9 +109,6 @@
     background-image: linear-gradient(to bottom, transparent 10px 35px, #FCE10B 35px 38px, transparent 38px);
     background-repeat: no-repeat;
     background-size: 4px;
-}
-.slot:has(:checked + .spot2) {
-    background-color: var(--bg);
 }
 
 .c {
