@@ -38,7 +38,7 @@
 }
 
 .paper-net .top    { transform: rotateX(90deg) translateZ(23px); }
-.paper-net .bottom { transform: rotateX(-90deg) translateZ(-50px); }
+.paper-net .bottom { transform: rotateX(-90deg) translateZ(18px); }
 .paper-net .rear { transform: rotateY(-90deg) translateZ(88px);  }
 .paper-net .right { transform: translateZ(20px); }
 .paper-net .front { transform: rotateY(90deg) translateZ(88px); }
@@ -69,10 +69,10 @@
     box-shadow: none;
 }
 
-.paper-net .top {
+.paper-net .clone:is(.top, .bottom) {
     background-color: silver; height: 34px; width: 125px;
     transition: opacity 2s ease-in;
-    opacity: 1; /* Fully visible */
+    opacity: 0.9; /* Fully visible */
     pointer-events: auto; /* Allow interactions */
 }
 
@@ -87,4 +87,5 @@
     box-shadow: 0 0 8px rgba(255, 255, 0, 0.6); /* Soft yellow glow */
     filter: brightness(1.2); /* Slightly brightens on hover */
     will-change: transform;
+    clip-path: initial;
 }

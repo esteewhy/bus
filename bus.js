@@ -95,7 +95,7 @@ function playground$(id, size = 20) {
         .append($.map(Array.from(new Array(size).keys()), function(n) {
             return slot$(id, n);
         }))
-        .prepend($('.templates > .options').clone())
+        .append($('.templates > .options').clone())
             .find('.menu.open').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
             .find('.menu-input').attr('id', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
             .find('.paint')
@@ -119,6 +119,15 @@ function inflateBus($board, bus) {
     const busElements = bus.match(/\w\d+/ig) || [];
     const cbnames = [];
     const inputs = $('.slot > input:not(.close):not(.open)', board).get();
+    const colorElement = bus.match(/c\d+/g)?.[0];
+    
+    if(colorElement) {
+        const colorOption = board.querySelector(`input[value="${colorElement}"]`);
+        if (colorOption) {
+            const colorInput = board.querySelector(`input[name="${colorOption.name}"][value="${colorElement}"]`);
+            colorInput && (colorInput.checked = true);
+        }
+    }
     
     inputs.forEach(input => {
         if (!cbnames.includes(input.name)) {
@@ -129,11 +138,6 @@ function inflateBus($board, bus) {
                 const prefix = busElement[0]; // Get the first character of the first element
                 
                 if('c' === prefix) {
-                    const colorOption = board.querySelector(`input[value="${busElement}"]`);
-                    if (colorOption) {
-                        const colorInput = board.querySelector(`input[name="${colorOption.name}"][value="${busElement}"]`);
-                        colorInput && (colorInput.checked = true);
-                    }
                     busElements.shift();
                     continue;
                 }
@@ -215,7 +219,7 @@ function getBusLength(bus) {
  * @usedBy On starting editing upon clicking on view.
  */
 function showBusView(bus, id = 'bus' + new Date().getTime()) {
-    const htmlVisitor = htmlVisitorOutlineFactory(/r\d+/.test(bus) ? fullRenderer : flatRenderer);
+    const htmlVisitor = htmlVisitorOutlineFactory(/(?:r\d+|f\d+|h\d+(?:.*?h\d+)+)/.test(bus) ? fullRenderer : flatRenderer);
     return showBus(bus, [htmlVisitor], id)[0].attr({id});
 }
 
@@ -232,8 +236,8 @@ function busesEqual(bus1, bus2) {
     return normalizeBus(bus1) === normalizeBus(bus2);
 }
 
-function busIncludes(bigBus, smallBus) {
-    return normalizeBus(bigBus).includes(normalizeBus(smallBus));
+function busIncludes(bigBus, miniBus) {
+    return normalizeBus(bigBus).includes(normalizeBus(miniBus));
 }
 
 $(function() {
@@ -251,6 +255,7 @@ $(function() {
                 console.log(`Saving ${id}:`);
                 if(showBus) showBus(bus);
                 window.localStorage.setItem(id, bus);
+                $playground.data('initial-bus', bus);
             }
         }
     ).trigger('change');
@@ -276,7 +281,14 @@ $(function() {
                 $editor.find(`.slot:eq(${groupedIndex}) .open`)
                     .each((_, el) => el.checked = true);
             }
-            $viewer.siblings().remove().end().unwrap().replaceWith($editor);
+            $viewer
+                .filter('.paper-net')
+                    .siblings()
+                        .remove()
+                        .end()
+                    .unwrap()
+                    .end()
+                .replaceWith($editor);
             
             //if($editor.parent().hasClass('warp')) {
                 //$editor.siblings().remove().end().unwrap();
@@ -309,16 +321,6 @@ function findGroupIndex(bus, linearIndex) {
         .length - 1;                // Our items should end up last
 }
 
-const genesys = {
-    'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
-    'bus1': 't0 w4 l4 d0 w7 a1 w7 w7 l000 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2',
-    'bus2': 't0 w4 l4 w4 w8 a1 w8 w8 l000 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3',
-    'bus3': 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4',
-    'bus4': 't0 w4 l4 d0 w8 a1 w8 w8 l000 w8 a4 d0 h0 c5',
-    'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
-    'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 w6 a3 d6 h0 c1'
-};
-
 function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
     return location.search
         ? location.search.substr(1).split`&`.reduce((qd, item) => {let [k,v] = item.split`=`; v = v && decodeURIComponent(v); (qd[k] = qd[k] || []).push(v); return qd}, {})
@@ -335,7 +337,7 @@ $(function() {
     var entries = Object.entries(
         Object.assign({}, 
             Object.fromEntries(
-                (localStorage['order'] ?? (localStorage['order'] = Object.keys(genesys).toString()))
+                (localStorage['order'] ?? (localStorage['order'] = Object.keys(SPEC.genesys).toString()))
                     .split(',')
                     .map(a => [a, undefined])
             ),// Sort
@@ -343,7 +345,7 @@ $(function() {
                 localStorage,       // Save defaults if empty
                 Object.assign(
                     {},
-                    genesys,        // Defaults
+                    SPEC.genesys,        // Defaults
                     localStorage,   // Existing
                     urlParams       // From URL
                 )
@@ -418,9 +420,7 @@ $(function() {
  * Editing assistance.
  */
 $(function() {
-    var up = function(m, p1) { return "slot" + (parseInt(p1) + 1); };
-    var down = function(m, p1) { return "slot" + (parseInt(p1) - 1); };
-    var renumber = function(replacer) { return function(n, i) { return i && i.replace(/slot(\d+)/, replacer); } };
+    var renumber = function(replacer) { return function(n, i) { return i && i.replace(/(?<=slot)(\d+)/, replacer); } };
     
     $(document).on('click', '.picker .insert',
         /**
@@ -428,48 +428,57 @@ $(function() {
          */
         function(e) {
             var $slot = $(this).parents('.slot');
-            var $newSlot = $slot.clone();
-            $slot.nextAll()
-                .addBack()
-                .get()
-                .reverse()
-                .forEach(function(el) {
-                    $(el).find('[for],[name],[id]')
-                        .attr('for', renumber(up))
-                        .attr('name', renumber(up))
-                        .attr('id', renumber(up));
-                });
-            
-            $newSlot
-                .insertBefore($slot)
-                .find('[type="radio"]:not(.close):not(.open):first')
-                .trigger('change');
-            return false;
-        }
-    );
-    
-    $(document).on('click', '.picker .delete',
-        /**
-         * Removes bus section and renames following sections according to their new order.
-         */
-        function(e) {
-            confirm('Sure to remove this section?') && $(this).parents('.slot')
-                .nextAll()
-                .each(function() {
-                    $(this).find('[for],[name],[id]')
-                        .attr('for', renumber(down))
-                        .attr('name', renumber(down))
-                        .attr('id', renumber(down));
-                })
+            let id = Date.now();
+            var $newSlot = $slot.clone()
+                .find('[for],[name],[id]')
+                    .attr('for', renumber(id))
+                    .attr('name', renumber(id))
+                    .attr('id', renumber(id))
+                    .end()
+                .insertAfter($slot)
                 .end()
-                .remove()
-                // After slot was detached find event target by calculated id.
-                && $('#' + $(this).parents('.slot').find('.open').map((_, el) => el.id.match(/^\w+(?=slot)/)).get(0))
-                    .find('[type="radio"]:not(.close):not(.open):not(.menu-input):first')
+                .end()
+                .find('[type="radio"]:not(.close):not(.open):not(.menu-input):first')
                     .trigger('change');
             return false;
         }
     );
+    
+    $(document).on('click', '.picker .delete', function(e) {
+        var $slot = $(this).parents('.slot');
+        let $radio =  $(this).parents('.bus')
+            .find('.slot')
+            .not($slot)
+            .filter(':first')
+            .find('[type="radio"]:not(.close):not(.open):not(.menu-input):first');
+        
+        // Hide the slot instead of removing immediately
+        $slot.css({ opacity: 0.5 }).slideUp(300);
+
+        // Track whether undo is clicked
+        let undoClicked = false;
+
+        // Provide an undo button
+        let $undoBtn = $("<button class='undo-btn'>Undo</button>")
+            .insertAfter(".bus")
+            .on("click", function() {
+                undoClicked = true; // Mark undo as used
+                $slot.stop().css({ opacity: 1 }).slideDown(300).removeClass("undo");
+                $(this).remove(); // Remove undo button
+            });
+
+        // Delayed deletion (only if undo wasn’t clicked)
+        setTimeout(function() {
+            if (!undoClicked) {  
+                $slot.remove();
+                $radio.trigger("change");
+            }
+            $undoBtn.remove(); // Cleanup undo button
+        }, 3000); // 5-second grace period
+
+        return false;
+    });
+
     
     $('#all-close').on('click',
         /**

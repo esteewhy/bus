@@ -10,7 +10,7 @@ $(document).ready(function() {
             .end()
             .find('.front').css('transform', `rotateY(90deg) translateZ(${halfRightWidth}px)`)
             .end()
-            .find('.top').css('width', busLength);
+            .find('.top.clone,.bottom.clone').css('width', busLength);
         return container;
     }
     
@@ -45,6 +45,12 @@ $(document).ready(function() {
             .appendTo(container);
     }
     
+    function injectChassis(container) {
+        if($('.bottom.clone', container).length) return;
+        $('<div class="bottom clone"/>')
+            .appendTo(container);
+    }
+    
     function addTiltControl(container) {
         if (!$(container).parent().hasClass('warp')) { // Prevent endless wrapping
             $(container).wrap(
@@ -59,6 +65,7 @@ $(document).ready(function() {
         
         addTiltControl(container);
         injectRoof(container);
+        injectChassis(container);
         expandEnds(container);
         bendWindows(container);
         

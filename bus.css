@@ -74,8 +74,6 @@ label { cursor: hand; }
 .picker label { display: inline-block; margin: 1px; } 
 .picker .blank { min-height: 17px; max-height: 17px; width: 16px; }
 
-.paint :checked + label,
-.picker :checked + label,
 .blink {
   animation: blink-animation 1s steps(5, start) infinite;
   -webkit-animation: blink-animation 1s steps(5, start) infinite;
@@ -130,14 +128,33 @@ label { cursor: hand; }
     box-shadow: 0px 5px 5px rgba(128, 128, 128, 0.7);
 }
 
-.front.face .picker {
-    transform: rotate(90deg) translate(10px, -50px);
+
+.bus .left.face .picker {
+    transform-origin: top center;
+    transform: scale(0.75) rotate(180deg) translate(100%, 53px);
 }
-.rear.face .picker {
-    transform: rotate(-90deg) translate(40px, 0);
+.bus .left.face .slot:nth-child(-n+5) .picker {
+    transform-origin: top left;
+    transform: scale(0.75) rotate(180deg) translate(-100%, 53px);
 }
-.left.face .picker {
-    transform: rotate(180deg) translate(-30px, 40px);
+
+.bus .right.face .slot:nth-last-child(-n+5) .picker {
+    transform-origin: top center;
+    transform: scale(0.75) translateX(-100%);
+}
+.bus .right.face .slot:nth-child(-n+5) .picker {
+    transform-origin: top left;
+    transform: scale(0.75);
+}
+
+.bus .front.face .picker {
+    transform-origin: 60% -100%;
+    transform: scale(0.75) rotate(90deg) translateX(-30%);
+}
+
+.bus .rear.face .picker {
+    transform-origin: -25% -50%;
+    transform: scale(0.75) rotate(-90deg);
 }
 
 .front.face .picker :not(.f),

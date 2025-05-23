@@ -136,6 +136,16 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
         file: 'tiles.png'
     });
     
+    const genesys = {
+        'bus0': 't0 d7 w2 a0 w2 l1 d7 w2 l3 w2 a3 d4 h0 f0 h0 w3 l2 w2 a3 w2 l2 w2 w2 w2 a0 w2 l2 t0 r0 c1',
+        'bus1': 't0 w4 l4 d0 w7 a1 w7 w7 l000 w7 a4 d0 h0 f1 h0 l0 w3 w8 a4 w7 l000 w8 w7 a1 w8 l5 t0 r1 c2',
+        'bus2': 't0 w4 l4 w4 w8 a1 w8 w8 l000 w8 a4 d0 h0 f1 h0 w3 l0 w8 a4 w8 l000 w8 w8 a1 w8 l5 t0 r1 c3',
+        'bus3': 't0 w6 d0 w8 a2 w8 l00 w2 a5 d0 h0 f0 h0 w3 l0 w1 a5 w8 l00 w8 a2 w2 l5 t0 r1 c4',
+        'bus4': 't0 w4 l4 d0 w8 a1 w8 w8 l000 w8 a4 d0 h0 c5',
+        'bus5': 't0 d5 w2 a3 w2 l2 d5 j0 w2 a0 w2 l1 d5 w2 l3 w2 a3 d5 h0 c1',
+        'bus6': 't0 w6 d6 w2 a0 w2 l1 d6 w0 l3 w2 w6 a3 d6 h0 c1'
+    };
+    
     return {
         imgType,
         get ["bus.sprites.css"]() {
@@ -161,7 +171,8 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
                 [...LIVREYS, ...SPRITES].map(([id, { note }]) => [id, note])
             );
         },
-        SPRITES
+        SPRITES,
+        genesys
     }
 })();
 
@@ -169,11 +180,10 @@ const BUS = showBus;
 
 //const groupped_rx = /([dhfrtw])(\d+)\s*(?:([acl])(\d+))?/g;
 
-function showBus(bus = genesys['bus0'], visitors = [consoleVisitor], id) {
+function showBus(bus = SPEC.genesys['bus0'], visitors = [consoleVisitor], id) {
     const colorElement = bus.match(/c\d+/g)?.[0] ?? 'c1';
     const slice = [
         ...bus
-            //.split(/(?<=h\d+)/g)[0]///Stops at right side of the bus.
             .match(/\w\d+/g)
             .filter(part => !part.startsWith('c')),
         colorElement
@@ -237,15 +247,13 @@ function htmlVisitorInlineFactory(delegate = defaultDelegateFactory()) {
 }
 
 /**
- * Isolates CSS rules into bus-scoped <style/> block, allowing for optinmization.
+ * Isolates CSS rules into bus-scoped <style/> block, allowing for optimization.
  */
 function htmlVisitorOutlineFactory(delegate = defaultDelegateFactory()) {
     return function (slice, styles, id) {
         const styleSheet = [];
         let prevClass = "";
-        
         const colorElement = slice.find(a => 'c' == a[0]);
-        
         const html = slice
             .map((a, index) => {
                 if (a[0] === 'c') return a; // Preserve content elements
@@ -262,7 +270,6 @@ function htmlVisitorOutlineFactory(delegate = defaultDelegateFactory()) {
             .join(' ');
         
         const livreyCss = colorElement ? SPEC.sprites._.replace('/*livrey*/', `, ${SPEC.livreys[colorElement]}`) : SPEC.sprites._;
-        
         styleRules = [...new Set(styleSheet)]
             .join('\n')
             .replaceAll('/*top*/', '')
@@ -270,7 +277,6 @@ function htmlVisitorOutlineFactory(delegate = defaultDelegateFactory()) {
             .replaceAll(SPEC.sprites._.replace('/*livrey*/', ''), '');
         
         const styleTag = `<style>\n#${id} span { width: unset; display:inline-block; ${livreyCss}}\n${styleRules}</style>\n`.replaceAll(';;', ';');
-
         return delegate(html, slice, styles, id, styleTag);
     };
 }
@@ -299,26 +305,32 @@ function fullRenderer(html, slice, styles, id, styleTag) {
 }
 
 /**
- * Takes linear markup of either bus editor or viewer and splits it into 4 sides each wrapped in <div/>.
+ * Splits linear markup of either editor or viewer into 4 sides.
  */
 function splitSides($html) {
-    const sel = selector => `.slot:has(:checked[value^="${selector}"]), >span.${selector}`;
-    const getSplitPoint = (selector) => $html.find(sel(selector)).first();
+    const $slots = $html.children(`.slot, span:not(.slot)`);
+    const sel = cls => `.slot:has(:checked[value^="${cls}"]), span.${cls}`;
+    const getSplitPoint = (cls) => $slots.filter(sel(cls)).first();
     
     const firstHead = getSplitPoint('h');
-    const secondHead = $html.find(sel('h')).eq(1);
+    const rightSideEnd = firstHead.length ? $slots.index(firstHead) : $slots.length;
+    const $right = $slots.slice(0, rightSideEnd + 1);
+    const secondHead = $slots.filter(sel('h')).eq(1);
     const nextTail = secondHead.nextAll(sel('t')).first();
-        
-    const sections = [
-        $html.find(`.slot, >span`).slice(0, firstHead.index() + 1),
+    const $left = secondHead.add(nextTail.length
+        ? secondHead.nextUntil(nextTail).add(nextTail)
+        : secondHead.nextAll().filter('.slot,span:not(.slot)')
+    );
+    const sides = [
+        $right,
         getSplitPoint('f'),
-        secondHead.add(secondHead.nextUntil(nextTail).add(nextTail)),
+        $left,
         getSplitPoint('r'),
     ];
     
     return ['right', 'front', 'left', 'rear'].map((side, i) => 
-            sections[i]?.length && $("<div/>", { class: `${side} face` }).html(sections[i])
-        ).filter(Boolean);
+        sides[i]?.length && $("<div/>", { class: `${side} face` }).html(sides[i])
+    ).filter(Boolean);
 }
 
 function parseAnnotations(docs) {
