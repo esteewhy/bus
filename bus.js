@@ -27,8 +27,8 @@ function unzip(array, keys = ['inputs', 'labels']) {
     );
 }
 
-function group$(num, typ, tgt, groupName) {
-    const array = Array.from({ length: num }).map((_, n) => option$(typ, n, groupName, tgt));
+function group$(num, typ, tgt, groupName, selection) {
+    const array = Array.from({ length: num }).map((_, n) => option$(typ, n, groupName, tgt, typ + n === selection));
     return unzip(array);
 }
 
@@ -39,13 +39,12 @@ function group$(num, typ, tgt, groupName) {
  * @param {int} n - Positional number of this section.
  * @return {jQuery Object} Individual section of a bus editor.
  */
-function slot$(parentId, n) {
+function slot$(parentId, n, busGroup = null, selected = false) {
     const groupName = `${parentId}slot${n}`;
     const _grp = (num, typ, tgt) => group$(num, typ, tgt, groupName);
 
     const sources = [
         { labels: '<a href="" class="insert" title="insert">+</a><a href="" class="delete" title="delete">-</a><br/>' },
-        //option$('spot', 2, groupName, 'top', 'checked'),
         option$('t', 0, groupName, 'top'),
         option$('j', 0, groupName, 'top'),
         _grp(2, 'h', 'top'),
@@ -59,22 +58,34 @@ function slot$(parentId, n) {
         option$('blank', '0', groupName, 'bottom'),
         _grp(6, 'a', 'bottom'),
         { labels: '<br/>' },
-        _grp(6, 'l', 'bottom'),
+        _grp(7, 'l', 'bottom'),
         { labels: '<br/>' },
         option$('l', '00', groupName, 'bottom'),
         option$('l', '000', groupName, 'bottom')
     ];
 
     const { inputs, labels } = unzip(sources);
+    
     const [open, close] = ['open', 'close'].map(action => shadow$(groupName, action));
 
-    return $('<span class="slot" />').append(
+    const $slots = $('<span class="slot" />').append(
         inputs,
         open.inputs, close.inputs,
         $('<span/>', { class: 'shadow' }).append(open.labels),
         $('<span/>', { class: 'shadow' }).append(close.labels),
         $('<div/>', { class: 'picker' }).append(labels)
     );
+    
+    if(busGroup) {
+        busGroup.map(busElement => {
+            const $matchingInput = $slots.find(`input[value="${busElement}"]`);
+            if ($matchingInput.length) {
+                $slots.find(`input[name="${$matchingInput.attr('name')}"]`).val([busElement]);
+            }
+        });
+    }
+    
+    return $slots;
 }
 
 /**
@@ -88,81 +99,26 @@ function slot$(parentId, n) {
  * @depends slot$ Generates individual editing section of a bus.
  * @usedBy showBusEditor - Generate HTML for Bus editing.
  */
-function playground$(id, size = 20) {
-    const livreys = group$(9, 'c', 'paint', id);
-    return $('<fieldset class="bus" id="' + id + '" />')
+function playground$(id, bus) {
+    const busLayout = splitSidesInSource(bus);
+    const busGroups = bus.replace(COLOR_RX, '').match(GROUP_RX) || ['t0h0'];
+    const livreys = group$(9, 'c', 'paint', id, busLayout[0]);
+    const pivot = 'right,front,left,rear'.split(',');
+    
+    let globalIndex = 0;
+    return $(`<fieldset class="bus" id="${id}" />`)
         .append(livreys.inputs)
-        .append($.map(Array.from(new Array(size).keys()), function(n) {
-            return slot$(id, n);
-        }))
+        .append(busLayout.slice(1).map((side, n) =>
+            side.length && $(`<div class='${pivot[n]} face'/>`)
+                .html(
+                    side.map(busGroup => slot$(id, globalIndex++, busGroup))
+                )
+        ))
         .append($('.templates > .options').clone())
             .find('.menu.open').attr('for', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
             .find('.menu-input').attr('id', function() { return $(this).parents('.bus').attr('id') + 'menu'; }).end()
             .find('.paint')
                 .append(livreys.labels).end();
-}
-
-/**
- * Assigns Bus string to existing editor.
- * 
- * It appears more complex than it seems reasonable,
- * especially compared to it's counterpart deflateBus,
- * because it must accept bus parts unsupported by editor
- * and liverey instruction in arbitrary place.
- * 
- * @param {jQuery Object} $board - Bus editor long enough to accommodate new bus.
- * @param {string} bus - Bus parts along with livrey.
- * @usedBy showBusEditor - Generate HTML for Bus editing.
- */
-function inflateBus($board, bus) {
-    const board = $board.get(0);
-    const busElements = bus.match(/\w\d+/ig) || [];
-    const cbnames = [];
-    const inputs = $('.slot > input:not(.close):not(.open)', board).get();
-    const colorElement = bus.match(/c\d+/g)?.[0];
-    
-    if(colorElement) {
-        const colorOption = board.querySelector(`input[value="${colorElement}"]`);
-        if (colorOption) {
-            const colorInput = board.querySelector(`input[name="${colorOption.name}"][value="${colorElement}"]`);
-            colorInput && (colorInput.checked = true);
-        }
-    }
-    
-    inputs.forEach(input => {
-        if (!cbnames.includes(input.name)) {
-            cbnames.push(input.name);
-            
-            while(busElements.length) {
-                const busElement = busElements[0];
-                const prefix = busElement[0]; // Get the first character of the first element
-                
-                if('c' === prefix) {
-                    busElements.shift();
-                    continue;
-                }
-                
-                const radios = board.querySelectorAll(`input[name="${input.name}"]`);
-                const prefixes = Array.from(radios).reduce((acc, radio) => {
-                    const p = radio.value[0]; // Get the first character of the value
-                    if (!acc.includes(p)) {
-                        acc.push(p);
-                    }
-                    return acc;
-                }, []);
-                
-                if (prefixes.includes(prefix)) {
-                    radios.forEach(radio => {
-                        if (radio.value === busElement) {
-                            radio.checked = true;
-                        }
-                    });
-                    busElements.shift();
-                }
-                break;
-            }
-        }
-    });
 }
 
 /**
@@ -179,11 +135,10 @@ function deflateBus($board) {
     const id = $board.attr('id');
     return Object.values(
         Object.fromEntries(
-            //new FormData(form)
             Array.from(new FormData($('#bus2').closest('form').get(0)))
                 .filter(el => el[0].startsWith(id))
         )
-    ).join(' ').replace(' spot2', '');
+    ).join(' ');
 }
 
 /**
@@ -198,9 +153,7 @@ function deflateBus($board) {
  * @usedBy On starting editing upon clicking on view.
  */
 function showBusEditor(bus, id = 'bus' + Date.now()) {
-    const $canvas = playground$(id, getBusLength(bus)).data('initial-bus', bus);
-    inflateBus($canvas, bus);
-    return $canvas.append(splitSides($canvas));
+    return playground$(id, bus).data('initial-bus', bus);
 }
 
 function getBusLength(bus) {
@@ -219,8 +172,8 @@ function getBusLength(bus) {
  * @usedBy On starting editing upon clicking on view.
  */
 function showBusView(bus, id = 'bus' + new Date().getTime()) {
-    const htmlVisitor = htmlVisitorOutlineFactory(/(?:r\d+|f\d+|h\d+(?:.*?h\d+)+)/.test(bus) ? fullRenderer : flatRenderer);
-    return showBus(bus, [htmlVisitor], id)[0].attr({id});
+    const renderer = /(?:r\d+|f\d+|h\d+(?:.*?h\d+)+)/.test(bus) ? fullRenderer : flatRenderer;
+    return renderer(...outlineFormatter(showBus(bus), id)).attr({id});
 }
 
 function normalizeBus(bus) {
@@ -253,7 +206,7 @@ $(function() {
             if(!busesEqual(oldBus, bus)) {
                 window.location.hash = encodeURIComponent(bus);
                 console.log(`Saving ${id}:`);
-                if(showBus) showBus(bus);
+                console.log(...consoleFormatter(showBus(bus)));
                 window.localStorage.setItem(id, bus);
                 $playground.data('initial-bus', bus);
             }
@@ -299,8 +252,7 @@ $(function() {
     );
     
     console.group(`WELLCOME\nto the legend of...`);
-    BUS('f0');
-    BUS('f1 c2');
+    console.log(...((b1, b2) => [b1[0] + b2[0], ...b1.slice(1).concat(b2.slice(1))])(consoleFormatter(showBus('f0')), consoleFormatter(showBus('f1 c2'))));
     console.log(...either(
         ['%c I k a %cr%c u %cs', 'font-style: italic; text-decoration: underline', 'font-style: italic', 'font-style: italic; text-decoration: underline', 'font-style: italic'],
         ['%c_I_k_a_r_u_s', 'font-style: italic; font-weight: bold;']
@@ -313,11 +265,11 @@ $(function() {
  * to an index of a grouped 2-storey elements.
  */
 function findGroupIndex(bus, linearIndex) {
-    return bus.replace(/\s*c\d+\s*/g, '') // Exclude 'c'-element
-        .split(/\s+|(?<=\d+)(?=[a-z])/g)           // Break into char/number elements
+    return bus.replace(COLOR_RX, '') // Exclude 'c'-element
+        .split(ELEMENT_RX)           // Break into char/number elements
         .slice(0, linearIndex + 1)  // Split at original index
         .join('')                   // Back to string
-        .match(/.\d+[al]\d+|.\d+/g) // Now split in groups
+        .match(GROUP_RX) // Now split in groups
         .length - 1;                // Our items should end up last
 }
 
@@ -331,6 +283,15 @@ function getUrlParams() { //https://stackoverflow.com/a/21152762/35438
  * Bootstrapping and loading.
  */
 $(function() {
+    if (new URLSearchParams(window.location.search).has('clearLocalStorage')) {
+        localStorage.clear();
+
+        // Remove 'clearLocalStorage' from URL without reloading
+        const url = new URL(window.location.href);
+        url.searchParams.delete('clearLocalStorage');
+        history.replaceState(null, "", url.toString());
+    }
+    
     var urlParams = getUrlParams();
     window.history.pushState('object', document.title, location.href.split("?")[0]);
     
@@ -358,8 +319,7 @@ $(function() {
     const selectedIndex = window.location.hash ? entries.findIndex(e => busIncludes(e[1], window.location.hash.slice(1))) : -1;
     window.location.hash && 0 > selectedIndex
         && 0 < getBusLength(window.location.hash.slice(1))
-        && entries.push(['bus' + new Date().getTime(), window.location.hash.slice(1)])
-        && console.log('HASH', window.location.hash.slice(1));
+        && entries.push(['bus' + new Date().getTime(), window.location.hash.slice(1)]);
     
     $('#slots').replaceWith(entries.map((kvp, index) => (index === selectedIndex ? showBusEditor : showBusView)(kvp[1], kvp[0])));
     

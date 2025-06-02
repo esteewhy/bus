@@ -128,7 +128,7 @@ label { cursor: hand; }
     box-shadow: 0px 5px 5px rgba(128, 128, 128, 0.7);
 }
 
-
+/* Keep picker within viewport. */
 .bus .left.face .picker {
     transform-origin: top center;
     transform: scale(0.75) rotate(180deg) translate(100%, 53px);
@@ -137,7 +137,6 @@ label { cursor: hand; }
     transform-origin: top left;
     transform: scale(0.75) rotate(180deg) translate(-100%, 53px);
 }
-
 .bus .right.face .slot:nth-last-child(-n+5) .picker {
     transform-origin: top center;
     transform: scale(0.75) translateX(-100%);
@@ -146,22 +145,26 @@ label { cursor: hand; }
     transform-origin: top left;
     transform: scale(0.75);
 }
-
 .bus .front.face .picker {
     transform-origin: 60% -100%;
     transform: scale(0.75) rotate(90deg) translateX(-30%);
 }
-
 .bus .rear.face .picker {
     transform-origin: -25% -50%;
     transform: scale(0.75) rotate(-90deg);
 }
 
-.front.face .picker :not(.f),
-.rear.face .picker :not(.r),
-.right.face .picker :is(.f, .r),
-.left.face .picker :is(.f, .r),
-.left.face .picker .r {
+/* Hide "+" and "-" where not allowed. */
+.face:is(.front,.rear) .picker :is(.insert, .delete),
+.face:is(.right) :checked:is([value^="h"]) ~ .picker :is(.insert, .delete),
+.face:is(.right) :checked:is([value^="t"]) ~ .picker .delete,
+.face:is(.left) :checked:is([value^="h"], [value^="t"]) ~ .picker .delete,
+/* Prevent part selection out of context. */
+.face :checked:is([value^="h"]) ~ .picker label:not(.h),
+.face :checked:is([value^="t"]) ~ .picker label:not(.t),
+.front.face .picker label:not(.f),
+.rear.face .picker label:not(.r),
+.face:is(.right, .left) .picker :is(.f, .r) {
     display: none;
 }
 

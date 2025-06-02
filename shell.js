@@ -7,10 +7,10 @@ t0  |0|0 |7 |  |tail side view
 j0  |1|0 |20|  |articulated junction (280)
 a   |2|  |  |17|axels
 a0  | |0 |16|  |pneumatic rear
-a1  | |1 |17|  |springs rear (255, 266)
+a1  | |1 |17|  |springs rear (255/66)
 a2  | |2 |15|  |ifa rear (211)
 a3  | |3 |16|  |pneumatic front
-a4  | |4 |17|  |springs front (255, 266)
+a4  | |4 |17|  |springs front (255/66)
 a5  | |5 |15|  |ifa front (211)
 w   |3|  |  |21|windows
 w0  | |0 |25|  |sliderless
@@ -31,7 +31,7 @@ l4  | |4 |13|  |exhaust grill
 l5  | |5 |13|  |radiator grill
 l00 | |9 |39|  |double
 l000| |10|58|  |tripple
-l6  | |11|39|  |engine
+l6  | |11|39|  |underfloor engine (260/63/80)
 d   |5|  |  |  |doors
 d0  | |0 |16|  |hinged tall (255.72)
 d1  | |1 |16|  |hinged short  (256.54)
@@ -176,115 +176,121 @@ c8|#FCE10B  10px 30px,  #F62803 30px 42px, transparent 42px                 |War
     }
 })();
 
-const BUS = showBus;
+const COLOR_RX = /\s*c\d+\s*/g;
+const ELEMENT_RX = /\s+|(?<=\d+)(?=[a-z])/g;
+const GROUP_RX = /.\d+\s*[al]\d+|.\d+/g;
 
-//const groupped_rx = /([dhfrtw])(\d+)\s*(?:([acl])(\d+))?/g;
+function showBus(bus = SPEC.genesys['bus0']) {
+    return styleBus(splitSidesInSource(bus));
+}
 
-function showBus(bus = SPEC.genesys['bus0'], visitors = [consoleVisitor], id) {
-    const colorElement = bus.match(/c\d+/g)?.[0] ?? 'c1';
-    const slice = [
-        ...bus
-            .match(/\w\d+/g)
-            .filter(part => !part.startsWith('c')),
-        colorElement
-    ];
+function styleBus(busLayout) {
+    const [colorElement, ...sides] = busLayout;
     
-    const styles = slice.map((curr, index) => {
-        let newRules = (SPEC.sprites[curr[0]] || '') + SPEC.sprites[curr];
-        const isTopItem = 0 <= newRules.indexOf('/*top*/');
+    const styleBottom = (bottomElement, topRules) => {
+        let bottomRules = (SPEC.sprites[bottomElement[0]] || '') + SPEC.sprites[bottomElement];
 
-        if (!isTopItem && index > 0) {
-            const prev = slice[index - 1];
-            if (prev) {
-                const [prevWidth, currWidth] = [
-                    (SPEC.sprites[prev]?.match(/padding-right:\s*(\d+)px/) || [])[1],
-                    (newRules.match(/padding-left:\s*(\d+)px/) || [])[1]
-                ].map(Number);
-                const leftShift = Math.round(Math.max((prevWidth + currWidth) / 2, currWidth));
-                newRules = newRules
-                    .replace(/margin-left:\s*(-?\d+)px;/, `margin-left: ${-leftShift}px;`)
-                    .replace(/padding-left:\s*(\d+)px;/, `padding-left: ${leftShift}px;`);
-            }
-        }
-        
-        return SPEC.sprites._.replace(
-            '/*livrey*/',
-            isTopItem ? `, ${SPEC.livreys[colorElement]}` : ''
-        ) + newRules;
-    });
+        const [topWidth, bottomWidth] = [topRules, bottomRules]
+            .map(rules => Number((rules.match(/padding-(left|right):\s*(\d+)px/) || [])[2]));
 
-    return visitors.map(visitor => visitor(slice, styles, id));
-}
-
-function consoleVisitor(slice, styles) {
-    console.log(
-        slice.map(a => `%c${a}`).join(' '),
-        ...styles.map(rules => rules.replace(SPEC.imgType.file, SPEC.imgType.inline))
-    );
-}
-
-function defaultDelegateFactory() {
-    return function(html) {
-        return `<div class='bus-view'>${html}</div>`;
+        const leftShift = Math.round(Math.max((topWidth + bottomWidth) / 2, bottomWidth));
+        return bottomRules
+            .replace(/margin-left:\s*(-?\d+)px;/, `margin-left: ${-leftShift}px;`)
+            .replace(/padding-left:\s*(\d+)px;/, `padding-left: ${leftShift}px;`);
     };
+
+    // Transform sides while keeping structured `{ top, bottom }` format
+    const styledSides = sides.map(side =>
+        side.map(([topElement, bottomElement]) => {
+            const baseStyle = SPEC.sprites._.replace('/*livrey*/', `, ${SPEC.livreys[colorElement]}`);
+            const topStyle = baseStyle + (SPEC.sprites[topElement[0]] || '') + SPEC.sprites[topElement];
+            const bottomStyle = bottomElement ? baseStyle + styleBottom(bottomElement, topStyle) : null;
+
+            return {
+                top: { element: topElement, style: topStyle },
+                ...(bottomElement ? { bottom: { element: bottomElement, style: bottomStyle } } : {})
+            };
+        })
+    );
+
+    return [colorElement, ...styledSides];
+}
+
+function consoleFormatter(busLayout) {
+    const elements = [];
+    const styles = [];
+
+    busLayout.slice(1).flat().forEach(({ top, bottom }) => {
+        elements.push(`%c${top.element}`);
+        styles.push(top.style);
+        if (bottom) {
+            elements.push(`%c${bottom.element}`);
+            styles.push(bottom.style);
+        }
+    });
+    
+    return [elements.join(' '), ...styles.map(rules => rules.replace(SPEC.imgType.file, SPEC.imgType.inline))];
+}
+
+function generateSideContent(busLayout, formatSlot) {
+    const SIDE_MAP = ['right', 'front', 'left', 'rear'];
+    return busLayout.slice(1)
+        .map((side, sideIndex) => {
+            if (!side.length) return ''; // Skip empty sides
+            const sideName = SIDE_MAP[sideIndex];
+            const sideContent = side.map(formatSlot).join(' ');
+            return `<div class="${sideName} face">${sideContent}</div>`;
+        })
+        .filter(Boolean)
+        .join('\n');
 }
 
 /**
- * Keep styles inline with respective span, inflicting a lot of overhead.
+ * Keep styles inline with associated span, inflicting some overhead.
  */
-function htmlVisitorInlineFactory(delegate = defaultDelegateFactory()) {
-    return function(slice, styles, id) {
-        const html = slice
-            .map((a, index) =>
-                'c' === a[0]
-                    ? a
-                    : `<span class="${a[0]} ${a}" style="width: unset; display:inline-block; ${styles[index]}">${a}</span>`
-            )
-            .join(' ');
+function inlineFormatter(busLayout) {
+    const colorElement = busLayout[0];
+    const getSpan = (element, rules) =>
+        `<span class="${element[0]} ${element} ${colorElement}" style="width: unset; display:inline-block; ${rules}">${element}</span>`;
 
-        return delegate(html, slice, styles, id);
-    };
+    return [generateSideContent(busLayout, ({ top, bottom }) =>
+        getSpan(top.element, top.style) +
+        (bottom ? getSpan(bottom.element, bottom.style + ' background-image: url(tiles.png);') : '')
+    )];
 }
 
 /**
  * Isolates CSS rules into bus-scoped <style/> block, allowing for optimization.
  */
-function htmlVisitorOutlineFactory(delegate = defaultDelegateFactory()) {
-    return function (slice, styles, id) {
-        const styleSheet = [];
-        let prevClass = "";
-        const colorElement = slice.find(a => 'c' == a[0]);
-        const html = slice
-            .map((a, index) => {
-                if (a[0] === 'c') return a; // Preserve content elements
-                const rules = styles[index];
-                const isTopItem = 0 <= rules.indexOf('/*top*/');
-                const className = `${a[0]}.${a}`;
-                const selector = prevClass && !isTopItem ? `#${id} .${prevClass} + .${className}` : `#${id} .${className}`;
+function outlineFormatter(busLayout, id) {
+    const styleSheet = new Set(); // Use Set directly for unique styles
+    const colorElement = busLayout[0];
+    const getElement = (element) => `<span class="${element[0]} ${element} ${colorElement}">${element}</span>`
 
-                styleSheet.push(`${selector} { ${rules + (isTopItem ? '' : '; background-image: url(tiles.png); ')} }`);
-                prevClass = className; // Update previous class for the next iteration
+    const html = generateSideContent(busLayout, ({ top, bottom }) => {
+        const topSelector = `#${id} .${top.element[0]}.${top.element}`;
+        styleSheet.add(`${topSelector} { ${top.style} }`);
 
-                return `<span class="${a[0]} ${a} ${colorElement}">${a}</span>`;
-            })
-            .join(' ');
-        
-        const livreyCss = colorElement ? SPEC.sprites._.replace('/*livrey*/', `, ${SPEC.livreys[colorElement]}`) : SPEC.sprites._;
-        styleRules = [...new Set(styleSheet)]
-            .join('\n')
-            .replaceAll('/*top*/', '')
-            .replaceAll(livreyCss, '')
-            .replaceAll(SPEC.sprites._.replace('/*livrey*/', ''), '');
-        
-        const styleTag = `<style>\n#${id} span { width: unset; display:inline-block; ${livreyCss}}\n${styleRules}</style>\n`.replaceAll(';;', ';');
-        return delegate(html, slice, styles, id, styleTag);
-    };
+        if (bottom) {
+            styleSheet.add(`${topSelector} + .${bottom.element[0]}.${bottom.element} { ${bottom.style}; background-image: url(tiles.png); }`);
+        }
+
+        return getElement(top.element) + (bottom ? getElement(bottom.element) : '');
+    });
+
+    // Optimize style rules
+    const livreyCss = SPEC.sprites._.replace('/*livrey*/', colorElement ? `, ${SPEC.livreys[colorElement]}` : '');
+    const styleRules = Array.from(styleSheet).join('\n').replaceAll('/*top*/', '').replaceAll(livreyCss, '');
+
+    // Wrap styles into a scoped `<style>` block
+    const styleTag = `<style>\n#${id} span { width: unset; display:inline-block; ${livreyCss} }\n${styleRules}</style>\n`;
+    return [html, styleTag];
 }
 
 /**
  * Renders bus as a single strip of parts.
  */
-function flatRenderer(html, slice, styles, id, styleTag) {
+function flatRenderer(html, styleTag) {
     return $("<a class='bus-view' />")
         .html(styleTag + html)
         .attr('href', '#' + encodeURIComponent($(`<span>${html}</span>`).text().replace(/\s+/g, '')));
@@ -293,44 +299,66 @@ function flatRenderer(html, slice, styles, id, styleTag) {
 /**
  * Renders bus in 3D.
  */
-function fullRenderer(html, slice, styles, id, styleTag) {
-    const $html = $(`<div>${html}</div>`);
-    const bus = $html.text();
+function fullRenderer(html, styleTag) {
+    const bus = $(`<span>${html}</span>`).text();
     return $("<a class='bus-view paper-net' />")
         .append(
             styleTag,
-            splitSides($html),
+            html,
             html.match(/c\d+/)?.[0] ?? "c1")
         .attr("href", "#" + encodeURIComponent(bus.replace(/\s+/g, "")));
 }
 
 /**
- * Splits linear markup of either editor or viewer into 4 sides.
+ * Splits bus source into 4+ sides.
  */
-function splitSides($html) {
-    const $slots = $html.children(`.slot, span:not(.slot)`);
-    const sel = cls => `.slot:has(:checked[value^="${cls}"]), span.${cls}`;
-    const getSplitPoint = (cls) => $slots.filter(sel(cls)).first();
-    
-    const firstHead = getSplitPoint('h');
-    const rightSideEnd = firstHead.length ? $slots.index(firstHead) : $slots.length;
-    const $right = $slots.slice(0, rightSideEnd + 1);
-    const secondHead = $slots.filter(sel('h')).eq(1);
-    const nextTail = secondHead.nextAll(sel('t')).first();
-    const $left = secondHead.add(nextTail.length
-        ? secondHead.nextUntil(nextTail).add(nextTail)
-        : secondHead.nextAll().filter('.slot,span:not(.slot)')
-    );
-    const sides = [
-        $right,
-        getSplitPoint('f'),
-        $left,
-        getSplitPoint('r'),
-    ];
-    
-    return ['right', 'front', 'left', 'rear'].map((side, i) => 
-        sides[i]?.length && $("<div/>", { class: `${side} face` }).html(sides[i])
-    ).filter(Boolean);
+function splitSidesInSource(bus) {
+    // Extract color if present
+    const colorMatch = bus.match(/c\d+/g);
+    const colorElement = colorMatch ? colorMatch[0] : 'c1';
+    const cleanedBus = bus.replace(/c\d+/g, '').trim();
+
+    // Tokenize bus elements into full groups before slicing
+    const elementGroups = cleanedBus.match(GROUP_RX) || []; // Groups before splitting
+
+    // Locate split points with corrected left-side handling
+    const firstHeadIndex = elementGroups.findIndex(el => /^h\d+$/.test(el));
+    const frontStartIndex = elementGroups.findIndex(el => /^f\d+$/.test(el));
+    const secondHeadIndex = elementGroups.findIndex((el, i) => /^h\d+$/.test(el) && i > firstHeadIndex);
+    const leftStartIndex = frontStartIndex !== -1 ? frontStartIndex + 1 : secondHeadIndex; // Start left after front or second `h`
+    const leftEndIndex = elementGroups.findIndex((el, i) => /^r\d+$/.test(el) && i > leftStartIndex) - 1; // Ensure `r` is excluded
+    const rightEndIndex = firstHeadIndex !== -1 
+        ? firstHeadIndex + 1 // End at first `h` (included)
+        : (frontStartIndex !== -1 ? frontStartIndex : -1); // End at first `f` (excluded), otherwise defer decision
+
+    // Helper function to structure `[top, bottom?]` groups
+    const groupElements = (list) => list.map(busGroup => {
+        const matches = busGroup.match(/\w\d+/g) || [];
+        const [topElement, bottomElement] = matches.length > 1 ? matches : [matches[0], undefined];
+        return bottomElement ? [topElement, bottomElement] : [topElement];
+    });
+
+    // Extract structured sides
+    const right = rightEndIndex !== -1 ? groupElements(elementGroups.slice(0, rightEndIndex)) : [];
+    const front = groupElements(elementGroups.filter(el => /^f\d+$/.test(el)));
+    const left = leftStartIndex !== -1 ? groupElements(elementGroups.slice(leftStartIndex, leftEndIndex !== -1 ? leftEndIndex + 1 : elementGroups.length)) : [];
+    const rear = groupElements(elementGroups.filter(el => /^r\d+$/.test(el)));
+
+    // Ensure no lost elements: fallback to right if all sides are empty
+    if (!right.length && !front.length && !left.length && !rear.length) {
+        return [colorElement, groupElements(elementGroups)];
+    }
+
+    return [colorElement, right, front, left, rear];
+}
+
+function autocompleteSide(side, bus) {
+    switch(side) {
+        case "front":
+            return either('f0', 'f1', 'f2');
+        case 'rear':
+            return 'r0';
+    }
 }
 
 function parseAnnotations(docs) {
