@@ -54,12 +54,12 @@ r   |8|  |  |  |rearside view
 r0  | |0 |38|  |engine underflor
 r1  | |1 |38|  |rear engine
 s   |9|  |16|  |roof elements
-s0  | |0 |  |  |blind
+s0  | |0 |10|  |rear
 s1  | |1 |  |  |wide hatch
 s2  | |2 |  |  |hatch
 s3  | |3 |  |  |vent
-s4  | |4 |10|  |front
-s5  | |5 |9 |  |rear
+s4  | |4 |  |  |blind
+s5  | |5 |9 |  |front
 `.split('\n')
         .filter(v => v && '' !== v.trim())
         .slice(1)
@@ -181,7 +181,7 @@ const ELEMENT_RX = /\s+|(?<=\d+)(?=[a-z])/g;
 const GROUP_RX = /.\d+\s*[al]\d+|.\d+/g;
 
 function showBus(bus = SPEC.genesys['bus0']) {
-    return styleBus(splitSidesInSource(bus));
+    return styleBus(splitSides(bus));
 }
 
 function styleBus(busLayout) {
@@ -217,23 +217,22 @@ function styleBus(busLayout) {
 }
 
 function consoleFormatter(busLayout) {
-    const elements = [];
-    const styles = [];
+    const elements = [], styles = [];
 
-    busLayout.slice(1).flat().forEach(({ top, bottom }) => {
-        elements.push(`%c${top.element}`);
-        styles.push(top.style);
-        if (bottom) {
-            elements.push(`%c${bottom.element}`);
-            styles.push(bottom.style);
-        }
-    });
-    
+    busLayout[0] && elements.push(`%c${busLayout[0]}`) && styles.push('font-size: 0');
+
+    busLayout.slice(1)
+        .flatMap(side => side.flatMap(({ top, bottom }) => [top, bottom].filter(Boolean))) // Flatten `top` & `bottom`
+        .forEach(({ element, style }) => {
+            elements.push(`%c${element}`);
+            styles.push(style);
+        });
+
     return [elements.join(' '), ...styles.map(rules => rules.replace(SPEC.imgType.file, SPEC.imgType.inline))];
 }
 
 function generateSideContent(busLayout, formatSlot) {
-    const SIDE_MAP = ['right', 'front', 'left', 'rear'];
+    const SIDE_MAP = ['right', 'front', 'left', 'rear', 'top', 'bottom', 'floor'];
     return busLayout.slice(1)
         .map((side, sideIndex) => {
             if (!side.length) return ''; // Skip empty sides
@@ -256,7 +255,7 @@ function inlineFormatter(busLayout) {
     return [generateSideContent(busLayout, ({ top, bottom }) =>
         getSpan(top.element, top.style) +
         (bottom ? getSpan(bottom.element, bottom.style + ' background-image: url(tiles.png);') : '')
-    )];
+    ) + colorElement];
 }
 
 /**
@@ -284,7 +283,7 @@ function outlineFormatter(busLayout, id) {
 
     // Wrap styles into a scoped `<style>` block
     const styleTag = `<style>\n#${id} span { width: unset; display:inline-block; ${livreyCss} }\n${styleRules}</style>\n`;
-    return [html, styleTag];
+    return [html + colorElement, styleTag];
 }
 
 /**
@@ -312,7 +311,7 @@ function fullRenderer(html, styleTag) {
 /**
  * Splits bus source into 4+ sides.
  */
-function splitSidesInSource(bus) {
+function splitSides(bus) {
     // Extract color if present
     const colorMatch = bus.match(/c\d+/g);
     const colorElement = colorMatch ? colorMatch[0] : 'c1';
@@ -331,6 +330,10 @@ function splitSidesInSource(bus) {
         ? firstHeadIndex + 1 // End at first `h` (included)
         : (frontStartIndex !== -1 ? frontStartIndex : -1); // End at first `f` (excluded), otherwise defer decision
 
+    // Identify roof elements starting after the last rear (`r`)
+    const rearEndIndex = elementGroups.findIndex(el => /^r\d+$/.test(el)) + 1;
+    const roofStartIndex = elementGroups.findIndex((el, i) => /^s\d+$/.test(el) && i >= rearEndIndex);
+
     // Helper function to structure `[top, bottom?]` groups
     const groupElements = (list) => list.map(busGroup => {
         const matches = busGroup.match(/\w\d+/g) || [];
@@ -343,13 +346,14 @@ function splitSidesInSource(bus) {
     const front = groupElements(elementGroups.filter(el => /^f\d+$/.test(el)));
     const left = leftStartIndex !== -1 ? groupElements(elementGroups.slice(leftStartIndex, leftEndIndex !== -1 ? leftEndIndex + 1 : elementGroups.length)) : [];
     const rear = groupElements(elementGroups.filter(el => /^r\d+$/.test(el)));
+    const roof = roofStartIndex !== -1 ? groupElements(elementGroups.slice(roofStartIndex)) : [];
 
     // Ensure no lost elements: fallback to right if all sides are empty
-    if (!right.length && !front.length && !left.length && !rear.length) {
+    if (!right.length && !front.length && !left.length && !rear.length && !roof.length) {
         return [colorElement, groupElements(elementGroups)];
     }
 
-    return [colorElement, right, front, left, rear];
+    return [colorElement, right, front, left, rear, roof]; // Add roof to output
 }
 
 function autocompleteSide(side, bus) {

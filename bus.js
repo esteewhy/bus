@@ -54,6 +54,8 @@ function slot$(parentId, n, busGroup = null, selected = false) {
         _grp(10, 'd', 'top'),
         { labels: '<br/>' },
         _grp(9, 'w', 'top'),
+        { labels: '<br class="s" />' },
+        _grp(6, 's', 'top'),
         { inputs: '<br class="conditional"/>', labels: '<br class="conditional"/>' },
         option$('blank', '0', groupName, 'bottom'),
         _grp(6, 'a', 'bottom'),
@@ -100,7 +102,7 @@ function slot$(parentId, n, busGroup = null, selected = false) {
  * @usedBy showBusEditor - Generate HTML for Bus editing.
  */
 function playground$(id, bus) {
-    const busLayout = splitSidesInSource(bus);
+    const busLayout = splitSides(bus);
     const busGroups = bus.replace(COLOR_RX, '').match(GROUP_RX) || ['t0h0'];
     const livreys = group$(9, 'c', 'paint', id, busLayout[0]);
     const pivot = 'right,front,left,rear'.split(',');

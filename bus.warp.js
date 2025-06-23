@@ -39,9 +39,11 @@ $(document).ready(function() {
         const busLength = $(container).find('.right').outerWidth();
         const n = Math.ceil((busLength - 10 - 9) / 16);
         if(n < 0) return;
-        $('<div class="top clone"><span style="width:9px" class="s s5">[</span>')
-            .append('<span style="width:16px" class="s s0">|</span>'.repeat(n)
-            + '<span style="width:10px" class="s s4">]</span></div>')
+        $('<div class="top clone"><span style="width:9px" class="s s0">[</span>')
+            .append([...Array(n)].map((_, i) => 
+                `<span style="width:16px" class="s ${i >= 2 && i <= n - 3 && (i + 1) % 3 === 0 ? 's2' : 's4'}">|</span>`
+            ).join('')
+            + '<span style="width:10px" class="s s5">]</span></div>')
             .appendTo(container);
     }
     

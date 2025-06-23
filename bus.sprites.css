@@ -2,10 +2,10 @@
 :checked[value="j0"] ~ .shadow .top, .j0 { background-position: calc(var(--dx) * 1 - 1px) 0; width: 20px; }/* articulated junction (280) */
 :checked[value^="a"] ~ .shadow .bottom, .a { background-position-x: calc(var(--dx) * 2 - 1px); min-height: 17px; }/* axels */
 :checked[value="a0"] ~ .shadow .bottom, .a0 { background-position-y: -29px; width: 16px; }/* pneumatic rear */
-:checked[value="a1"] ~ .shadow .bottom, .a1 { background-position-y: calc(var(--dy) * 1 - 29px); width: 17px; }/* springs rear (255, 266) */
+:checked[value="a1"] ~ .shadow .bottom, .a1 { background-position-y: calc(var(--dy) * 1 - 29px); width: 17px; }/* springs rear (255/66) */
 :checked[value="a2"] ~ .shadow .bottom, .a2 { background-position-y: calc(var(--dy) * 2 - 29px); width: 15px; }/* ifa rear (211) */
 :checked[value="a3"] ~ .shadow .bottom, .a3 { background-position-y: calc(var(--dy) * 3 - 29px); width: 16px; }/* pneumatic front */
-:checked[value="a4"] ~ .shadow .bottom, .a4 { background-position-y: calc(var(--dy) * 4 - 29px); width: 17px; }/* springs front (255, 266) */
+:checked[value="a4"] ~ .shadow .bottom, .a4 { background-position-y: calc(var(--dy) * 4 - 29px); width: 17px; }/* springs front (255/66) */
 :checked[value="a5"] ~ .shadow .bottom, .a5 { background-position-y: calc(var(--dy) * 5 - 29px); width: 15px; }/* ifa front (211) */
 :checked[value^="w"] ~ .shadow .top, .w { background-position-x: calc(var(--dx) * 3 - 1px); min-height: 21px; }/* windows */
 :checked[value="w0"] ~ .shadow .top, .w0 { background-position-y: 0; width: 25px; }/* sliderless */
@@ -26,7 +26,7 @@
 :checked[value="l5"] ~ .shadow .bottom, .l5 { background-position-y: calc(var(--dy) * 5 - 29px); width: 13px; }/* radiator grill */
 :checked[value="l00"] ~ .shadow .bottom, .l00 { background-position-y: calc(var(--dy) * 9 - 29px); width: 39px; }/* double */
 :checked[value="l000"] ~ .shadow .bottom, .l000 { background-position-y: calc(var(--dy) * 10 - 29px); width: 58px; }/* tripple */
-:checked[value="l6"] ~ .shadow .bottom, .l6 { background-position-y: calc(var(--dy) * 11 - 29px); width: 39px; }/* engine */
+:checked[value="l6"] ~ .shadow .bottom, .l6 { background-position-y: calc(var(--dy) * 11 - 29px); width: 39px; }/* underfloor engine (260/63/80) */
 :checked[value^="d"] ~ .shadow .top, .d { background-position-x: calc(var(--dx) * 5 - 1px); }/* doors */
 :checked[value="d0"] ~ .shadow .top, .d0 { background-position-y: 0; width: 16px; }/* hinged tall (255.72) */
 :checked[value="d1"] ~ .shadow .top, .d1 { background-position-y: calc(var(--dy) * 1); width: 16px; }/* hinged short  (256.54) */
@@ -49,9 +49,9 @@
 :checked[value="r0"] ~ .shadow .top, .r0 { background-position-y: 0; width: 38px; }/* engine underflor */
 :checked[value="r1"] ~ .shadow .top, .r1 { background-position-y: calc(var(--dy) * 1); width: 38px; }/* rear engine */
 :checked[value^="s"] ~ .shadow .top, .s { background-position-x: calc(var(--dx) * 9 - 1px); width: 16px; }/* roof elements */
-:checked[value="s0"] ~ .shadow .top, .s0 { background-position-y: 0; }/* blind */
+:checked[value="s0"] ~ .shadow .top, .s0 { background-position-y: 0; width: 10px; }/* rear */
 :checked[value="s1"] ~ .shadow .top, .s1 { background-position-y: calc(var(--dy) * 1); }/* wide hatch */
 :checked[value="s2"] ~ .shadow .top, .s2 { background-position-y: calc(var(--dy) * 2); }/* hatch */
 :checked[value="s3"] ~ .shadow .top, .s3 { background-position-y: calc(var(--dy) * 3); }/* vent */
-:checked[value="s4"] ~ .shadow .top, .s4 { background-position-y: calc(var(--dy) * 4); width: 10px; }/* front */
-:checked[value="s5"] ~ .shadow .top, .s5 { background-position-y: calc(var(--dy) * 5); width: 9px; }/* rear */
+:checked[value="s4"] ~ .shadow .top, .s4 { background-position-y: calc(var(--dy) * 4); }/* blind */
+:checked[value="s5"] ~ .shadow .top, .s5 { background-position-y: calc(var(--dy) * 5); width: 9px; }/* front */

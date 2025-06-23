@@ -164,7 +164,8 @@ label { cursor: hand; }
 .face :checked:is([value^="t"]) ~ .picker label:not(.t),
 .front.face .picker label:not(.f),
 .rear.face .picker label:not(.r),
-.face:is(.right, .left) .picker :is(.f, .r) {
+.face:is(.right, .left) .picker :is(.f, .r),
+.face:is(:not(.top)) .picker .s {
     display: none;
 }
 
