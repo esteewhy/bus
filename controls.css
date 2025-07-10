@@ -74,11 +74,13 @@ background: repeating-linear-gradient(
     }
     
     .bus-view, .bus {
-        transform: scale(1.32051);
+/* requires transform-origin */
+/*        transform: scale(1.32051); */
         /*width: unset;*/
         margin-right: 0px;
         margin-bottom: 2vw;
-        transform-origin: left top;
+/* breaks 3d rotation */
+/*        transform-origin: left top;*/
     }
     .picker {
         width: 97vw;
