@@ -82,10 +82,11 @@ background: repeating-linear-gradient(
 /* breaks 3d rotation */
 /*        transform-origin: left top;*/
     }
-    .picker {
+/* breaks second-half picker */
+/*    .picker {
         width: 97vw;
         left: 0;
-    }
+    }*/
 }
 
 @media only screen and (max-device-width: 915px) 
